@@ -14,20 +14,35 @@ synopsis:           A template for Haskell projects using Nix
 
 -- A longer description of the package.
 -- description:
-
 -- A URL where users can report bugs.
 -- bug-reports:
-
 extra-source-files:
   LICENSE
   README.md
 
-common shared
+common warnings
   ghc-options:
     -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns
     -Wmissing-deriving-strategies -Wunused-foralls -Wunused-foralls
     -fprint-explicit-foralls -fprint-explicit-kinds
 
+executable yesblog
+  import:           warnings
+  main-is:          Main.hs
+  build-depends:
+    , base     ^>=4.19.2.0
+    , yesblog
+
+  -- Directories containing source files.
+  hs-source-dirs:   app
+
+  -- Base language which the package is written in.
+  default-language: Haskell2010
+
+library
+  import:             warnings
+  exposed-modules:    Server
+  other-modules:      ApiType
   mixins:
     base hiding (Prelude),
     relude (Relude as Prelude, Relude.Container.One),
@@ -48,21 +63,31 @@ common shared
   build-depends:
     , aeson
     , async
-    , base          >=4   && <5
+    , attoparsec
+    , base                >=4   && <5
+    , base-compat
+    , blaze-html
+    , blaze-markup
     , data-default
     , directory
     , filepath
+    , hasql
+    , http-media
+    , lucid
     , mtl
     , optics-core
     , profunctors
-    , relude        >=1.0
+    , rel8
+    , relude              >=1.0
+    , servant
+    , servant-lucid
+    , servant-server
     , shower
+    , string-conversions
     , time
+    , wai
+    , warp
     , with-utf8
 
   hs-source-dirs:     src
   default-language:   GHC2021
-
-executable yesblog
-  import:  shared
-  main-is: Main.hs

@@ -1,0 +1,24 @@
+CREATE TABLE article (
+  id VARCHAR PRIMARY KEY,
+  name TEXT NOT NULL,
+  content TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  enable BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- 创建 tag 表
+CREATE TABLE tag (
+  id VARCHAR PRIMARY KEY,
+  name TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  enable BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- 创建 article_tag 关联表
+CREATE TABLE article_tag (
+  article_id VARCHAR NOT NULL REFERENCES article(id) ON DELETE CASCADE,
+  tag_id VARCHAR NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+  PRIMARY KEY (article_id, tag_id)
+);
