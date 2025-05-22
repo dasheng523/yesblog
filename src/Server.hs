@@ -9,33 +9,15 @@
 
 module Server where
 
-import Prelude.Compat
-import Prelude ()
+import Prelude
 
-import Control.Monad.Except
-import Control.Monad.Reader
 import Data.Aeson
-import Data.Aeson.Parser qualified
-import Data.Aeson.Types
-import Data.Attoparsec.ByteString
-import Data.ByteString (ByteString)
-
-import Data.List
-import Data.Maybe
-import Data.String.Conversions
-import Data.Time (UTCTime)
 import Data.Time.Calendar
-import GHC.Generics
 import Lucid
-import Network.HTTP.Media ((//), (/:))
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 import Servant.HTML.Lucid
-import System.Directory
-import Text.Blaze
-import Text.Blaze.Html qualified
-import Text.Blaze.Html.Renderer.Utf8
 
 data User = User
   { name :: String
@@ -173,7 +155,7 @@ data Person = Person
   { firstName :: String
   , lastName :: String
   }
-  deriving (Generic) -- for the JSON instance
+  deriving stock (Generic) -- for the JSON instance
 
 instance ToJSON Person
 
@@ -216,3 +198,6 @@ server4 = return people
 
 app4 :: Application
 app4 = serve personAPI server4
+
+runApp :: IO ()
+runApp = run 8081 app4
