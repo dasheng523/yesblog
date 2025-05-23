@@ -10,5 +10,7 @@ result-*
 
 # direnv
 .direnv
+.venv
 
 /.pre-commit-config.yaml
+gitdoc
