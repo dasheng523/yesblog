@@ -13,5 +13,6 @@
 - [在此处填写项目依赖]
 
 ## Tool Usage Patterns
-- **Preference**: Generate Git commit messages in Chinese.
-- [在此处填写其他工具使用模式]
+- After modifying `.cabal` or `.nix` files, user confirmation is required before proceeding.
+- Memory bank updates should be confined to a single appropriate file; duplicate information across multiple locations is unnecessary.
+- After each coding session, `cabal build` must be run for verification.

@@ -5,7 +5,7 @@
 
 ## Recent changes
 - Successfully retrieved `rel8` API documentation using `haskell-hackage-mcp`.
-- Corrected `plan_mode_respond` tool usage.
+- Corrected `plan_mode_respond` tool usage: Ensured response content is always encapsulated within `<response>` tags.
 - Created `memory-bank/progress.md` with task summary and lessons learned.
 
 ## Next steps
@@ -17,7 +17,9 @@
 - Maintaining comprehensive Memory Bank documentation for future sessions.
 
 ## Important patterns and preferences
-- Prioritizing the use of specialized MCP tools when available for specific tasks (e.g., `haskell-hackage-mcp` for Haskell docs).
+- Prioritizing the use of specialized MCP tools when available for specific tasks.
+- **Documentation Lookup Preference**: Prioritize `Context7` (`github.com/upstash/context7-mcp`) for general documentation lookup.
+- **API Lookup Preference**: Prioritize `haskell-hackage-mcp` for Haskell API specific documentation.
 - Adhering strictly to tool usage formatting (XML tags for parameters).
 
 ## Learnings and project insights

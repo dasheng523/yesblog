@@ -41,7 +41,10 @@ executable yesblog
 
 library
   import:             warnings
-  exposed-modules:    Server
+  exposed-modules:
+    Database
+    Server
+
   other-modules:      ApiType
   mixins:
     base hiding (Prelude),
@@ -66,6 +69,8 @@ library
     , attoparsec
     , base                >=4   && <5
     , base-compat
+    , beam-core
+    , beam-sqlite
     , blaze-html
     , blaze-markup
     , data-default
@@ -77,12 +82,12 @@ library
     , mtl
     , optics-core
     , profunctors
-    , rel8
     , relude              >=1.0
     , servant
     , servant-lucid
     , servant-server
     , shower
+    , sqlite-simple
     , string-conversions
     , time
     , wai

@@ -14,4 +14,5 @@ import Prelude
  `just run` will invoke this function.
 -}
 main :: IO ()
-main = runApp
+main = do
+  runApp
