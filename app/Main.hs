@@ -5,6 +5,7 @@
 
 module Main where
 
+import BeamExample
 import Server
 import Prelude
 
@@ -15,4 +16,5 @@ import Prelude
 -}
 main :: IO ()
 main = do
+  runBeamDemo -- Call the Beam demo function
   runApp

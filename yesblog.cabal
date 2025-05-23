@@ -42,7 +42,7 @@ executable yesblog
 library
   import:             warnings
   exposed-modules:
-    Database
+    BeamExample
     Server
 
   other-modules:      ApiType
@@ -70,6 +70,7 @@ library
     , base                >=4   && <5
     , base-compat
     , beam-core
+    , beam-migrate
     , beam-sqlite
     , blaze-html
     , blaze-markup
@@ -89,6 +90,7 @@ library
     , shower
     , sqlite-simple
     , string-conversions
+    , text
     , time
     , wai
     , warp

@@ -1,13 +1,13 @@
 # Product Context
 
 ## Why this project exists
-- 实现个人博客
+- To implement a personal blog
 
 ## Problems it solves
-- [在此处填写项目解决的问题]
+- [Fill in problems solved here]
 
 ## How it should work
-- [在此处填写项目应如何运作]
+- [Fill in how it should work here]
 
 ## User experience goals
-- [在此处填写用户体验目标]
+- [Fill in user experience goals here]

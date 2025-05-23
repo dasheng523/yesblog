@@ -1,18 +1,19 @@
 # Progress
 
 ## What works
-- Successfully used the `haskell-hackage-mcp` tool to retrieve API documentation for Haskell packages (e.g., `rel8`).
-- Demonstrated ability to understand and apply tool parameters, including correcting usage errors (e.g., `plan_mode_respond` parameter formatting).
+- Successfully read Beam documentation tutorials.
+- Wrote Beam Schema and example code in `src/BeamExample.hs`.
+- Successfully modified `app/Main.hs` to call the Beam example.
+- Successfully updated `yesblog.cabal` to include Beam dependencies and expose the `BeamExample` module.
+- Resolved compilation issues for the `BeamExample` module, including `hidden module` and `deriving strategy` problems.
 
 ## What's left to build
-- N/A for this specific task.
+- None. The Beam example has been successfully integrated and compiled.
 
 ## Current status
-- Confirmed smooth operation of Hackage documentation retrieval.
-- Documenting lessons learned for future reference.
+- The Beam example has been successfully integrated into the project and compiles.
 
 ## Known issues
-- Initial incorrect usage of `plan_mode_respond` due to parameter formatting misunderstanding. This was corrected.
-
-## Evolution of project decisions
-- Decision to explicitly document tool usage experiences and best practices in Memory Bank files to improve future performance and ensure knowledge retention across sessions.
+- Initial attempts to use `beam-migrate` led to compilation errors; migration functionality was temporarily abandoned as per user instructions.
+- Warnings due to missing explicit deriving strategies (`stock`, `anyclass`) when deriving instances.
+- `Show` and `Eq` instances for `PrimaryKey` require the `UndecidableInstances` extension and precise context constraints.

@@ -1,18 +1,21 @@
 # Tech Context
 
 ## Technologies Used
-- [在此处填写使用的技术]
+- [Fill in technologies used here]
 
 ## Development Setup
-- [在此处填写开发环境设置]
+- [Fill in development environment setup here]
 
 ## Technical Constraints
-- [在此处填写技术限制]
+- [Fill in technical constraints here]
 
 ## Dependencies
-- [在此处填写项目依赖]
+- [Fill in project dependencies here]
+
+### Haskell Cabal Mixins Configuration Summary
+With `mixins: base hiding (Prelude), relude (Relude as Prelude, ...)` configured in `.cabal`, `Prelude` in your code should refer to `Relude` (from the `relude` package) instead of the default `base` package's `Prelude`. This means your code should utilize `Relude`'s more modern and ergonomic alternative, and modules like `Relude.Container.One` should be directly available.
 
 ## Tool Usage Patterns
-- After modifying `.cabal` or `.nix` files, user confirmation is required before proceeding.
+- *(Important)* After modifying `.cabal` or `.nix` files, user confirmation is required before proceeding.
 - Memory bank updates should be confined to a single appropriate file; duplicate information across multiple locations is unnecessary.
 - After each coding session, `cabal build` must be run for verification.

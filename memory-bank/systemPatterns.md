@@ -1,16 +1,16 @@
 # System Patterns
 
 ## System Architecture
-- [在此处填写系统架构概述]
+- [Fill in system architecture overview here]
 
 ## Key Technical Decisions
-- [在此处填写关键技术决策]
+- [Fill in key technical decisions here]
 
 ## Design Patterns in Use
-- [在此处填写使用的设计模式]
+- [Fill in design patterns in use here]
 
 ## Component Relationships
-- [在此处填写组件之间的关系]
+- [Fill in component relationships here]
 
 ## Critical Implementation Paths
-- [在此处填写关键实现路径]
+- [Fill in critical implementation paths here]
