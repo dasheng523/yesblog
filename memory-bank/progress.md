@@ -6,14 +6,16 @@
 - Successfully modified `app/Main.hs` to call the Beam example.
 - Successfully updated `yesblog.cabal` to include Beam dependencies and expose the `BeamExample` module.
 - Resolved compilation issues for the `BeamExample` module, including `hidden module` and `deriving strategy` problems.
+- All project changes have been successfully committed to the repository.
 
 ## What's left to build
-- None. The Beam example has been successfully integrated and compiled.
+- None. The Beam example has been successfully integrated and compiled, and all changes are committed.
 
 ## Current status
-- The Beam example has been successfully integrated into the project and compiles.
+- The Beam example has been successfully integrated into the project and compiles. All changes are committed.
 
 ## Known issues
 - Initial attempts to use `beam-migrate` led to compilation errors; migration functionality was temporarily abandoned as per user instructions.
 - Warnings due to missing explicit deriving strategies (`stock`, `anyclass`) when deriving instances.
 - `Show` and `Eq` instances for `PrimaryKey` require the `UndecidableInstances` extension and precise context constraints.
+- `pre-commit` hooks caused issues during commit, which were resolved by cleaning the cache.

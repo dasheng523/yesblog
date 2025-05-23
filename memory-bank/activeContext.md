@@ -1,8 +1,7 @@
 # Active Context
 
 ## Current work focus
-- Developing Beam database examples.
-- Resolving Haskell/Beam compilation issues.
+- All changes have been committed.
 
 ## Recent changes
 - Successfully read Beam documentation tutorials.
@@ -10,9 +9,10 @@
 - Modified `app/Main.hs` to call the Beam example.
 - Updated `yesblog.cabal` to include Beam dependencies and expose the `BeamExample` module.
 - Resolved compilation errors for the `BeamExample` module, including `hidden module` and `deriving strategy` issues.
+- Successfully committed all changes to the repository, including auto-formatting fixes.
 
 ## Next steps
-- Complete the development and integration of the Beam example.
+- None. All current tasks are complete.
 
 ## Active decisions and considerations
 - Emphasizing clear and precise tool parameter usage.
@@ -21,6 +21,7 @@
 - Decided to temporarily abandon Beam's automatic migration feature and switch to manually creating database tables to simplify the compilation process and prioritize successful code compilation.
 - Clarified the importance of `deriving` strategies in Haskell and learned how to correctly use `stock` and `anyclass`.
 - Recognized the necessity of `UndecidableInstances` when dealing with complex type families (like Beam's `Columnar`).
+- Resolved `pre-commit` hook issues by cleaning cache and re-committing.
 
 ## Important patterns and preferences
 - Prioritizing the use of specialized MCP tools when available for specific tasks.
@@ -34,3 +35,4 @@
 - `PrimaryKey`'s `Show` and `Eq` instances need to be derived separately for the `Identity` version.
 - The configuration of `exposed-modules` in the `.cabal` file is crucial for module visibility.
 - Database migration functionality in Beam requires the `beam-migrate` package, but its usage may need adjustment based on version and specific requirements.
+- `pre-commit` hooks can sometimes have caching issues, which can be resolved by cleaning the cache.
