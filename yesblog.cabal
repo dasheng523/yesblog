@@ -24,7 +24,7 @@ common warnings
   ghc-options:
     -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns
     -Wmissing-deriving-strategies -Wunused-foralls -Wunused-foralls
-    -fprint-explicit-foralls -fprint-explicit-kinds
+    -fprint-explicit-foralls -fprint-explicit-kinds -threaded
 
 executable yesblog
   import:           warnings
@@ -42,7 +42,6 @@ executable yesblog
 library
   import:             warnings
   exposed-modules:
-    BeamExample
     Rel8Example
     Server
 
@@ -68,17 +67,16 @@ library
     , aeson
     , async
     , attoparsec
-    , base                >=4   && <5
+    , base                >=4       && <5
     , base-compat
-    , beam-core
-    , beam-migrate
-    , beam-sqlite
     , blaze-html
     , blaze-markup
+    , bytestring
     , data-default
     , directory
     , filepath
-    , hasql
+    , hasql               >=1.8.1.4
+    , hasql-pool          >=1.2.0.3
     , http-media
     , lucid
     , mtl

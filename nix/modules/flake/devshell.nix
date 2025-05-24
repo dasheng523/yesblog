@@ -13,6 +13,7 @@
         just
         nixd
         ghciwatch
+        postgresql # Add postgresql development libraries
       ];
     };
   };

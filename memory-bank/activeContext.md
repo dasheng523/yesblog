@@ -19,9 +19,7 @@
 - 强调清晰精确的工具参数使用。
 - 强调逐步验证工具执行结果的重要性。
 - 维护全面的记忆库文档以供未来会话使用。
-- 决定暂时放弃 Beam 的自动迁移功能，转而手动创建数据库表，以简化编译过程并优先确保代码成功编译。
 - 澄清了 Haskell 中 `deriving` 策略的重要性，并学习了如何正确使用 `stock` 和 `anyclass`。
-- 认识到在处理复杂类型族（如 Beam 的 `Columnar`）时 `UndecidableInstances` 的必要性。
 - 通过清理缓存和重新提交解决了 `pre-commit` 钩子问题。
 - 遇到类型错误时，优先查阅 API 文档（`haskell-hackage-mcp`），从而更深入地理解库函数签名和正确用法。
 - **Rel8 文档来源**: 了解到 `gitdoc/rel8/docs` 已过时；未来查找 `rel8` 文档应优先查看 `gitdoc/rel8/src` 以直接检查源码。
@@ -35,11 +33,7 @@
 - 严格遵守工具使用格式（XML 标签用于参数）。
 
 ## Learnings and project insights
-- Beam 的类型系统和派生机制需要精确的语言扩展和派生策略。
-- `UndecidableInstances` 扩展在处理 `Columnar` 类型族时是必需的。
-- `PrimaryKey` 的 `Show` 和 `Eq` 实例需要为 `Identity` 版本单独派生。
 - `.cabal` 文件中 `exposed-modules` 的配置对于模块可见性至关重要。
-- Beam 中的数据库迁移功能需要 `beam-migrate` 包，但其用法可能需要根据版本和具体要求进行调整。
 - `pre-commit` 钩子有时会出现缓存问题，可以通过清理缓存来解决。
 - 深入理解 `Hasql.Session.run` 和 `Hasql.Session.statement` 函数签名和参数顺序对于使用 Rel8 进行正确的数据库交互至关重要。
 - 验证数据库 schema 是否存在的重要性，以避免“relation does not exist”错误。

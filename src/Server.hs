@@ -13,9 +13,9 @@ import Lucid.Servant
 import Servant
 import Servant.HTML.Lucid
 
--- 确保 Relude 导入了 readMaybe, fromMaybe, IORef, newIORef, readIORef, modifyIORef' 等
--- 确保 liftIO 被导入
+import Hasql.Pool qualified as Pool
 import Network.Wai.Handler.Warp qualified as Warp
+import Rel8Example (Tag (tagName), allTags, getPoolConfig, runQuery)
 
 -- 定义新的 API 类型
 type API =
@@ -44,10 +44,24 @@ server counterVar =
     :<|> incrementR counterVar
 
 homeR :: Handler (Html ())
-homeR = return $
-  p_ [class_ "content"] $ do
-    b_ [] "home"
-    p_ [] $ a_ [href_ "/counter"] "Go to Counter Example"
+homeR = liftIO $ do
+  poolConfig <- getPoolConfig
+  pool <- Pool.acquire poolConfig
+  eTags <- runQuery pool allTags
+  _ <- Pool.release pool
+  case eTags of
+    Left err -> do
+      putStrLn $ "Error fetching tags: " ++ show err
+      return $ p_ [class_ "content"] $ do
+        b_ [] "Home"
+        p_ [] "Error: Could not fetch tags."
+    Right tags ->
+      return $
+        p_ [class_ "content"] $ do
+          b_ [] "Home"
+          p_ [] $ a_ [href_ "/counter"] "Go to Counter Example"
+          h2_ "Available Tags:"
+          ul_ $ traverse_ (\tag -> li_ (toHtml (tagName tag :: Text))) tags
 
 aboutR :: Handler (Html ())
 aboutR = return $

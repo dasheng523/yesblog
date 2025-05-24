@@ -5,9 +5,10 @@
 
 module Main where
 
-import BeamExample
-import Rel8Example (runApp) -- 导入 Rel8Example 的 runApp
+-- import BeamExample
+-- import Rel8Example
 import Server
+
 import Prelude
 
 {- |
@@ -17,6 +18,4 @@ import Prelude
 -}
 main :: IO ()
 main = do
-  -- runBeamDemo -- Call the Beam demo function
-  Rel8Example.runApp -- 调用 Rel8Example 的 runApp
-  -- runApp -- 原始的 runApp (Servant 应用)
+  runApp
