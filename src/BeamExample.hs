@@ -113,33 +113,6 @@ runBeamDemo = do
   -- Connect to SQLite database
   conn <- open "blog.db"
 
-  -- Manually create tables (since migration is disabled)
-  liftIO $ putStrLn "Manually creating tables..."
-  liftIO $ execute_ conn "CREATE TABLE IF NOT EXISTS article (id VARCHAR PRIMARY KEY, name TEXT NOT NULL, content TEXT, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, enable BOOLEAN NOT NULL DEFAULT TRUE)"
-  liftIO $ execute_ conn "CREATE TABLE IF NOT EXISTS tag (id VARCHAR PRIMARY KEY, name TEXT NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, enable BOOLEAN NOT NULL DEFAULT TRUE)"
-  liftIO $ execute_ conn "CREATE TABLE IF NOT EXISTS article_tag (article_id VARCHAR NOT NULL REFERENCES article(id) ON DELETE CASCADE, tag_id VARCHAR NOT NULL REFERENCES tag(id) ON DELETE CASCADE, PRIMARY KEY (article_id, tag_id))"
-  liftIO $ putStrLn "Tables created."
-
-  -- Insert some sample data
-  now <- getCurrentTime
-  let article1 = Article "article-1" "First Article" (Just "Content of the first article.") now now True
-      article2 = Article "article-2" "Second Article" (Just "Content of the second article.") now now True
-      tag1 = Tag "tag-1" "Haskell" now now True
-      tag2 = Tag "tag-2" "Beam" now now True
-
-  liftIO $ putStrLn "Inserting sample data..."
-  runBeamSqlite conn $ do
-    runInsert $ insert (_blogDbArticles blogDb) $ insertValues [article1, article2]
-    runInsert $ insert (_blogDbTags blogDb) $ insertValues [tag1, tag2]
-    runInsert $
-      insert (_blogDbArticleTags blogDb) $
-        insertValues
-          [ ArticleTag (primaryKey article1) (primaryKey tag1)
-          , ArticleTag (primaryKey article1) (primaryKey tag2)
-          , ArticleTag (primaryKey article2) (primaryKey tag1)
-          ]
-  liftIO $ putStrLn "Sample data inserted."
-
   -- Query all articles
   liftIO $ putStrLn "\nAll Articles:"
   articles <- runBeamSqlite conn $ runSelectReturningList $ select $ all_ (_blogDbArticles blogDb)

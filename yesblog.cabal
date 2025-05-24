@@ -43,6 +43,7 @@ library
   import:             warnings
   exposed-modules:
     BeamExample
+    Rel8Example
     Server
 
   other-modules:      ApiType
@@ -83,6 +84,7 @@ library
     , mtl
     , optics-core
     , profunctors
+    , rel8
     , relude              >=1.0
     , servant
     , servant-lucid

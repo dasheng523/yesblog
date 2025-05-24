@@ -1,38 +1,47 @@
 # Active Context
 
 ## Current work focus
-- All changes have been committed.
+- 实现了 `src/Rel8Example.hs` 中的 `getArticlesPaginated` 函数，用于分页获取文章列表。
 
 ## Recent changes
-- Successfully read Beam documentation tutorials.
-- Defined Beam Schema and example code in `src/BeamExample.hs`.
-- Modified `app/Main.hs` to call the Beam example.
-- Updated `yesblog.cabal` to include Beam dependencies and expose the `BeamExample` module.
-- Resolved compilation errors for the `BeamExample` module, including `hidden module` and `deriving strategy` issues.
-- Successfully committed all changes to the repository, including auto-formatting fixes.
+- 尝试在 `src/Rel8Example.hs` 中实现 `getArticlesPaginated` 函数，该函数支持按最新发布时间排序和分页。
+- 解决了 `Hasql.Session.QueryError` 未导入的问题。
+- 解决了 `Rel8.offset` 和 `Rel8.limit` 参数类型问题。
+- 解决了 `orderBy` 和 `desc` 运算符的组合问题，通过查阅 Rel8 文档和源码，明确了 `(>$<)` 运算符的正确用法。
+- 解决了 `Rel8.run` 函数的参数类型不匹配问题，根据用户提示，使用了 `Rel8.run $ select articleQuery`。
+- 更新了记忆库中关于 Rel8 文档查找的偏好，明确了应优先查看 `gitdoc/rel8/src` 目录的源码。
 
 ## Next steps
-- None. All current tasks are complete.
+- 验证 `src/Rel8Example.hs` 中 `getArticlesPaginated` 函数的最终状态，确保其导入和实现都已正确。
+- 实现 `getArticlesByTagPaginated` 函数，该函数将根据标签过滤文章并支持分页。
 
 ## Active decisions and considerations
-- Emphasizing clear and precise tool parameter usage.
-- Reinforcing the importance of step-by-step verification of tool execution results.
-- Maintaining comprehensive Memory Bank documentation for future sessions.
-- Decided to temporarily abandon Beam's automatic migration feature and switch to manually creating database tables to simplify the compilation process and prioritize successful code compilation.
-- Clarified the importance of `deriving` strategies in Haskell and learned how to correctly use `stock` and `anyclass`.
-- Recognized the necessity of `UndecidableInstances` when dealing with complex type families (like Beam's `Columnar`).
-- Resolved `pre-commit` hook issues by cleaning cache and re-committing.
+- 强调清晰精确的工具参数使用。
+- 强调逐步验证工具执行结果的重要性。
+- 维护全面的记忆库文档以供未来会话使用。
+- 决定暂时放弃 Beam 的自动迁移功能，转而手动创建数据库表，以简化编译过程并优先确保代码成功编译。
+- 澄清了 Haskell 中 `deriving` 策略的重要性，并学习了如何正确使用 `stock` 和 `anyclass`。
+- 认识到在处理复杂类型族（如 Beam 的 `Columnar`）时 `UndecidableInstances` 的必要性。
+- 通过清理缓存和重新提交解决了 `pre-commit` 钩子问题。
+- 遇到类型错误时，优先查阅 API 文档（`haskell-hackage-mcp`），从而更深入地理解库函数签名和正确用法。
+- **Rel8 文档来源**: 了解到 `gitdoc/rel8/docs` 已过时；未来查找 `rel8` 文档应优先查看 `gitdoc/rel8/src` 以直接检查源码。
+- **Rel8 查询构建**: 明确了 `orderBy` 结合 `(>$<)` 运算符的正确用法，以及 `Rel8.run $ select query` 的模式。
 
 ## Important patterns and preferences
-- Prioritizing the use of specialized MCP tools when available for specific tasks.
-- **Documentation Lookup Preference**: Prioritize `Context7` (`github.com/upstash/context7-mcp`) for general documentation lookup.
-- **API Lookup Preference**: Prioritize `haskell-hackage-mcp` for Haskell API specific documentation.
-- Adhering strictly to tool usage formatting (XML tags for parameters).
+- 优先使用专门的 MCP 工具来完成特定任务。
+- **文档查找偏好**: 优先使用 `Context7` (`github.com/upstash/context7-mcp`) 进行通用文档查找。
+- **API 查找偏好**: 优先使用 `haskell-hackage-mcp` 进行 Haskell API 特定文档查找。
+- **Rel8 源码查找**: 遇到与 `rel8` 相关的问题或疑问时，优先检查本地 `gitdoc/rel8/src` 目录下的源码，以避免幻觉并获取最新信息。
+- 严格遵守工具使用格式（XML 标签用于参数）。
 
 ## Learnings and project insights
-- Beam's type system and deriving mechanisms require precise language extensions and deriving strategies.
-- The `UndecidableInstances` extension is necessary when dealing with `Columnar` type families.
-- `PrimaryKey`'s `Show` and `Eq` instances need to be derived separately for the `Identity` version.
-- The configuration of `exposed-modules` in the `.cabal` file is crucial for module visibility.
-- Database migration functionality in Beam requires the `beam-migrate` package, but its usage may need adjustment based on version and specific requirements.
-- `pre-commit` hooks can sometimes have caching issues, which can be resolved by cleaning the cache.
+- Beam 的类型系统和派生机制需要精确的语言扩展和派生策略。
+- `UndecidableInstances` 扩展在处理 `Columnar` 类型族时是必需的。
+- `PrimaryKey` 的 `Show` 和 `Eq` 实例需要为 `Identity` 版本单独派生。
+- `.cabal` 文件中 `exposed-modules` 的配置对于模块可见性至关重要。
+- Beam 中的数据库迁移功能需要 `beam-migrate` 包，但其用法可能需要根据版本和具体要求进行调整。
+- `pre-commit` 钩子有时会出现缓存问题，可以通过清理缓存来解决。
+- 深入理解 `Hasql.Session.run` 和 `Hasql.Session.statement` 函数签名和参数顺序对于使用 Rel8 进行正确的数据库交互至关重要。
+- 验证数据库 schema 是否存在的重要性，以避免“relation does not exist”错误。
+- 掌握了 Rel8 中 `limit`, `offset`, `orderBy` 和 `desc` 的正确组合方式，特别是 `(>$<)` 运算符的使用。
+- 理解了 `Rel8.run` 和 `select` 函数在执行 Rel8 查询中的协同作用。
