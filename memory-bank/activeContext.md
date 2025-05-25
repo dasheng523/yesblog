@@ -24,6 +24,9 @@
 - 遇到类型错误时，优先查阅 API 文档（`haskell-hackage-mcp`），从而更深入地理解库函数签名和正确用法。
 - **Rel8 文档来源**: 了解到 `gitdoc/rel8/docs` 已过时；未来查找 `rel8` 文档应优先查看 `gitdoc/rel8/src` 以直接检查源码。
 - **Rel8 查询构建**: 明确了 `orderBy` 结合 `(>$<)` 运算符的正确用法，以及 `Rel8.run $ select query` 的模式。
+- **Relude Prelude 约定**：项目 .cabal 配置了 `mixins: base hiding (Prelude), relude (Relude as Prelude, ...)`，所有 Prelude 函数（如 `newIORef`、`readIORef`、`modifyIORef'`、`lookupEnv` 等）均应使用 relude 版本，禁止 import `Data.IORef`、`System.Environment` 等标准库以避免歧义。
+- **常见歧义与解决**：如遇到“Ambiguous occurrence”类型错误，优先排查是否有重复 import，统一用 relude Prelude 版本，删除显式 import。
+- **团队约定**：所有成员需知晓 relude mixins 配置，遵循统一风格，相关经验已记录于记忆库，后续遇到歧义优先查阅本条。
 
 ## Important patterns and preferences
 - 优先使用专门的 MCP 工具来完成特定任务。
@@ -39,3 +42,4 @@
 - 验证数据库 schema 是否存在的重要性，以避免“relation does not exist”错误。
 - 掌握了 Rel8 中 `limit`, `offset`, `orderBy` 和 `desc` 的正确组合方式，特别是 `(>$<)` 运算符的使用。
 - 理解了 `Rel8.run` 和 `select` 函数在执行 Rel8 查询中的协同作用。
+- 实践证明，relude 作为 Prelude 时，所有常用 IORef/Env 等函数应只用 Prelude 版本，避免 import 标准库模块，否则极易引发类型歧义和编译错误。团队应将此经验作为规范，避免重复踩坑。

@@ -220,3 +220,162 @@ runApp = do
 
   -- 释放连接
   Pool.release pool
+
+  -- 示例：新增标签
+  putStrLn "\n--- Tag CRUD Examples ---"
+  let newTagId = TagId "haskell-tag"
+      newTagName = "Haskell"
+      currentTime = UTCTime (fromGregorian 2025 5 25) (timeOfDayToTime (TimeOfDay 12 0 0))
+      newTag =
+        Tag
+          { tagId = lit newTagId
+          , tagName = lit newTagName
+          , tagCreatedAt = lit currentTime
+          , tagUpdatedAt = lit currentTime
+          , tagEnable = lit True
+          }
+  putStrLn $ "Creating tag: " ++ show newTagId
+  createdTagResult <- createTag newTag pool
+  case createdTagResult of
+    Left err -> putStrLn $ "Error creating tag: " ++ show err
+    Right tags -> putStrLn $ "Created tag: " ++ show tags
+
+  -- 示例：更新标签
+  let updatedTagName = "Functional Programming"
+  updatedTagResult <- updateTag newTagId (\t -> t {tagName = lit updatedTagName, tagUpdatedAt = lit currentTime}) pool
+  case updatedTagResult of
+    Left err -> putStrLn $ "Error updating tag: " ++ show err
+    Right tags -> putStrLn $ "Updated tag: " ++ show tags
+
+  -- 示例：删除标签
+  putStrLn $ "Deleting tag: " ++ show newTagId
+  deletedTagResult <- deleteTag newTagId pool
+  case deletedTagResult of
+    Left err -> putStrLn $ "Error deleting tag: " ++ show err
+    Right tags -> putStrLn $ "Deleted tag: " ++ show tags
+
+  -- 示例：新增文章
+  putStrLn "\n--- Article CRUD Examples ---"
+  let newArticleId = ArticleId "my-first-article"
+      newArticleName = "My First Article"
+      newArticleContent = Just "This is the content of my first article."
+      newArticle =
+        Article
+          { articleId = lit newArticleId
+          , articleName = lit newArticleName
+          , articleContent = lit newArticleContent
+          , articleCreatedAt = lit currentTime
+          , articleUpdatedAt = lit currentTime
+          , articleEnable = lit True
+          }
+  putStrLn $ "Creating article: " ++ show newArticleId
+  createdArticleResult <- createArticle newArticle pool
+  case createdArticleResult of
+    Left err -> putStrLn $ "Error creating article: " ++ show err
+    Right articles -> putStrLn $ "Created article: " ++ show articles
+
+  -- 示例：更新文章
+  let updatedArticleContent = Just "This is the updated content."
+  updatedArticleResult <- updateArticle newArticleId (\a -> a {articleContent = lit updatedArticleContent, articleUpdatedAt = lit currentTime}) pool
+  case updatedArticleResult of
+    Left err -> putStrLn $ "Error updating article: " ++ show err
+    Right articles -> putStrLn $ "Updated article: " ++ show articles
+
+  -- 示例：删除文章
+  putStrLn $ "Deleting article: " ++ show newArticleId
+  deletedArticleResult <- deleteArticle newArticleId pool
+  case deletedArticleResult of
+    Left err -> putStrLn $ "Error deleting article: " ++ show err
+    Right articles -> putStrLn $ "Deleted article: " ++ show articles
+
+-- 通用插入
+genericInsert ::
+  (Rel8able a, Serializable (a Expr) (a Result)) =>
+  TableSchema (a Name) ->
+  a Expr ->
+  Pool.Pool ->
+  IO (Either Pool.UsageError [a Result])
+genericInsert schema_ row pool =
+  Pool.use
+    pool
+    ( statement
+        ()
+        ( Rel8.run $
+            insert $
+              Insert
+                { into = schema_
+                , rows = values [row]
+                , onConflict = DoNothing
+                , returning = Returning id
+                }
+        )
+    )
+
+-- 通用更新
+genericUpdate ::
+  (Rel8able a, Serializable (a Expr) (a Result)) =>
+  TableSchema (a Name) ->
+  (a Expr -> Expr Bool) -> -- 过滤条件
+  (a Expr -> a Expr) -> -- 更新内容
+  Pool.Pool ->
+  IO (Either Pool.UsageError [a Result])
+genericUpdate schema_ cond updateFn pool =
+  Pool.use
+    pool
+    ( statement
+        ()
+        ( Rel8.run $
+            update $
+              Update
+                { target = schema_
+                , from = each schema_
+                , set = \_ row -> updateFn row
+                , updateWhere = \_ row -> cond row
+                , returning = Returning id
+                }
+        )
+    )
+
+-- 通用删除
+genericDelete ::
+  (Rel8able a, Serializable (a Expr) (a Result)) =>
+  TableSchema (a Name) ->
+  -- | 过滤条件
+  (a Expr -> Expr Bool) ->
+  Pool.Pool ->
+  IO (Either Pool.UsageError [a Result])
+genericDelete schema_ cond pool =
+  Pool.use
+    pool
+    ( statement
+        ()
+        ( Rel8.run $
+            delete $
+              Delete
+                { from = schema_
+                , using = pass
+                , deleteWhere = const cond
+                , returning = Returning id
+                }
+        )
+    )
+
+-- | 标签的 CRUD 操作
+createTag :: Tag Expr -> Pool.Pool -> IO (Either Pool.UsageError [Tag Result])
+createTag = genericInsert tagSchema
+
+updateTag :: TagId -> (Tag Expr -> Tag Expr) -> Pool.Pool -> IO (Either Pool.UsageError [Tag Result])
+updateTag tid = genericUpdate tagSchema (\t -> tagId t ==. lit tid)
+
+deleteTag :: TagId -> Pool.Pool -> IO (Either Pool.UsageError [Tag Result])
+deleteTag tid = genericDelete tagSchema (\t -> tagId t ==. lit tid)
+
+-- | 文章的 CRUD 操作
+createArticle :: Article Expr -> Pool.Pool -> IO (Either Pool.UsageError [Article Result])
+createArticle = genericInsert articleSchema
+
+updateArticle :: ArticleId -> (Article Expr -> Article Expr) -> Pool.Pool -> IO (Either Pool.UsageError [Article Result])
+updateArticle aid = genericUpdate articleSchema (\a -> articleId a ==. lit aid)
+
+deleteArticle :: ArticleId -> Pool.Pool -> IO (Either Pool.UsageError [Article Result])
+deleteArticle aid = genericDelete articleSchema (\a -> articleId a ==. lit aid)

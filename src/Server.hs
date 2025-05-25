@@ -1,23 +1,29 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE OverloadedStrings #-}
--- For IORef
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Server where
 
+import Hasql.Pool qualified as Pool
 import Lucid
 import Lucid.Servant
-
+import Network.Wai.Handler.Warp qualified as Warp
+import Rel8Example (Tag (tagName), allTags, getPoolConfig, runQuery)
 import Servant
 import Servant.HTML.Lucid
 
-import Hasql.Pool qualified as Pool
-import Network.Wai.Handler.Warp qualified as Warp
-import Rel8Example (Tag (tagName), allTags, getPoolConfig, runQuery)
+-- 全局环境类型，包含数据库连接池和计数器
+data Env = Env
+  { envPool :: Pool.Pool
+  , envCounter :: IORef Int
+  }
 
--- 定义新的 API 类型
+type AppM = ReaderT Env Handler
+
+-- API 类型定义
 type API =
   Get '[HTML] (Html ()) -- 根路径，显示主页
     :<|> "about" :> Get '[HTML] (Html ())
@@ -34,24 +40,23 @@ apiLink_ ::
   MkLink endpoint Attribute
 apiLink_ = safeAbsHref_ (Proxy :: Proxy API)
 
--- 修改 server 函数以包含新的处理函数
-server :: IORef Int -> Server API
-server counterVar =
+-- ServerT 版本，所有 Handler 都在 ReaderT Env Handler monad 中
+server :: ServerT API AppM
+server =
   homeR
     :<|> aboutR
     :<|> tagsR
-    :<|> counterR counterVar
-    :<|> incrementR counterVar
+    :<|> counterR
+    :<|> incrementR
 
-homeR :: Handler (Html ())
-homeR = liftIO $ do
-  poolConfig <- getPoolConfig
-  pool <- Pool.acquire poolConfig
-  eTags <- runQuery pool allTags
-  _ <- Pool.release pool
+-- 首页 Handler，复用全局 Pool
+homeR :: AppM (Html ())
+homeR = do
+  Env {..} <- ask
+  eTags <- liftIO $ runQuery envPool allTags
   case eTags of
     Left err -> do
-      putStrLn $ "Error fetching tags: " ++ show err
+      liftIO $ putStrLn $ "Error fetching tags: " ++ show err
       return $ p_ [class_ "content"] $ do
         b_ [] "Home"
         p_ [] "Error: Could not fetch tags."
@@ -63,26 +68,26 @@ homeR = liftIO $ do
           h2_ "Available Tags:"
           ul_ $ traverse_ (\tag -> li_ (toHtml (tagName tag :: Text))) tags
 
-aboutR :: Handler (Html ())
+aboutR :: AppM (Html ())
 aboutR = return $
   p_ [class_ "content"] $ do
     b_ [] "about"
 
-tagsR :: Handler (Html ())
+tagsR :: AppM (Html ())
 tagsR = return $
   p_ [class_ "content"] $ do
     b_ [] "tags"
 
--- 计数器页面处理函数
-counterR :: IORef Int -> Handler (Html ())
-counterR counterVar = liftIO $ do
-  currentCount <- readIORef counterVar
+-- 计数器页面 Handler
+counterR :: AppM (Html ())
+counterR = do
+  Env {..} <- ask
+  currentCount <- liftIO $ readIORef envCounter
   return $ do
     html_ $ do
       head_ $ do
         title_ "HTMX Counter Example"
-        -- 引入 htmx.min.js
-        script_ [src_ "https://unpkg.com/htmx.org@1.9.10"] (pass :: Html ())
+        script_ [src_ "https://unpkg.com/htmx.org@1.9.10"] ("" :: Html ())
       body_ $ do
         h1_ "HTMX Counter Example"
         p_ $ do
@@ -96,20 +101,29 @@ counterR counterVar = liftIO $ do
           "Increment"
         p_ $ a_ [href_ "/"] "Back to Home"
 
--- 增加计数器处理函数
-incrementR :: IORef Int -> Handler (Html ())
-incrementR counterVar = liftIO $ do
-  modifyIORef' counterVar (+ 1)
-  newCount <- readIORef counterVar
+-- 增加计数器 Handler
+incrementR :: AppM (Html ())
+incrementR = do
+  Env {..} <- ask
+  liftIO $ modifyIORef' envCounter (+ 1)
+  newCount <- liftIO $ readIORef envCounter
   return $ span_ [id_ "counter-display"] (toHtml (show newCount :: Text))
 
-app :: IORef Int -> Application
-app counterVar = serve api (server counterVar)
+-- hoistServer 提升 AppM 到 Handler
+app :: Env -> Application
+app env = serve api $ hoistServer api (nt env) server
+  where
+    nt :: Env -> AppM a -> Handler a
+    nt env' x = runReaderT x env'
 
+-- 应用启动，acquire Pool/init Env/传递给 app
 runApp :: IO ()
 runApp = do
   port <- fmap (fromMaybe 8000 . (>>= readMaybe)) (lookupEnv "PORT")
-  initialCount <- newIORef 0 -- 初始化计数器
+  poolConfig <- getPoolConfig
+  pool <- Pool.acquire poolConfig
+  counterVar <- newIORef 0
+  let env = Env pool counterVar
   putStrLn $ "http://localhost:" ++ show port ++ "/"
   putStrLn $ "HTMX Counter Example at http://localhost:" ++ show port ++ "/counter"
-  Warp.run port (app initialCount)
+  Warp.run port (app env)

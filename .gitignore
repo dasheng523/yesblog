@@ -13,4 +13,5 @@ result-*
 .venv
 
 /.pre-commit-config.yaml
-gitdoc
+gitdoc/
+# gitdoc
