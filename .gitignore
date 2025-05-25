@@ -15,3 +15,5 @@ result-*
 /.pre-commit-config.yaml
 gitdoc/
 # gitdoc
+node_modules/
+static/css/output.css

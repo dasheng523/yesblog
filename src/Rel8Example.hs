@@ -12,6 +12,7 @@
 
 module Rel8Example where
 
+import Data.Snowflake
 import Data.Time
 import Hasql.Connection qualified as Connection
 import Hasql.Pool qualified as Pool
@@ -154,6 +155,12 @@ getArticlesPaginated :: Int -> Int -> Query (Article Expr)
 getArticlesPaginated =
   paginateAndSort (articleCreatedAt >$< desc) $ each articleSchema
 
+-- | 生成新的雪花ID
+generateSnowflakeId :: SnowflakeGen -> IO Text
+generateSnowflakeId gen = do
+  sid <- nextSnowflake gen
+  return $ show sid
+
 -- 通过标签名找Tag
 tagForName :: Text -> Query (Tag Expr)
 tagForName name_ = do
@@ -171,11 +178,17 @@ articlesForTag tag = do
       &&. (articleTagTagId articleTag ==. tagId tag)
   return article
 
+-- | 所有标签
 allTags :: Query (Tag Expr)
 allTags = do
   tag <- each tagSchema
   where_ $ tagEnable tag ==. lit True
   return tag
+
+-- | 获取标签列表，支持分页和按最新发布时间排序
+getTagsPaginated :: Int -> Int -> Query (Tag Expr)
+getTagsPaginated =
+  paginateAndSort (tagCreatedAt >$< desc) allTags
 
 -- | 获取文章列表，支持按标签过滤、分页和按最新发布时间排序
 getArticlesByTagPaginated :: Text -> Int -> Int -> Query (Article Expr)
@@ -186,10 +199,27 @@ getArticlesByTagPaginated tagNameToFilter =
     where_ (articleEnable article ==. lit True)
     return article
 
+createTagWithName :: SnowflakeGen -> Pool.Pool -> Text -> IO (Either Pool.UsageError [Tag Result])
+createTagWithName gen pool tagName' = do
+  now <- getCurrentTime
+  tagIdText <- generateSnowflakeId gen
+  let tag =
+        Tag
+          { tagId = lit (TagId tagIdText)
+          , tagName = lit tagName'
+          , tagCreatedAt = lit now
+          , tagUpdatedAt = lit now
+          , tagEnable = lit True
+          }
+  createTag tag pool
+
 runApp :: IO ()
 runApp = do
   poolConfig <- getPoolConfig
   pool <- Pool.acquire poolConfig
+  -- 初始化雪花ID生成器
+  gen <- newSnowflakeGen defaultConfig 0
+
   -- 示例：获取第一页，每页2篇文章
   articlesPage1 <- runQuery pool $ getArticlesPaginated 1 2
   putStrLn "\nArticles Page 1 (2 articles per page):"
@@ -223,9 +253,10 @@ runApp = do
 
   -- 示例：新增标签
   putStrLn "\n--- Tag CRUD Examples ---"
-  let newTagId = TagId "haskell-tag"
+  currentTime <- getCurrentTime
+  tagId <- generateSnowflakeId gen
+  let newTagId = TagId tagId
       newTagName = "Haskell"
-      currentTime = UTCTime (fromGregorian 2025 5 25) (timeOfDayToTime (TimeOfDay 12 0 0))
       newTag =
         Tag
           { tagId = lit newTagId
@@ -256,7 +287,9 @@ runApp = do
 
   -- 示例：新增文章
   putStrLn "\n--- Article CRUD Examples ---"
-  let newArticleId = ArticleId "my-first-article"
+  currentTime <- getCurrentTime
+  articleId <- generateSnowflakeId gen
+  let newArticleId = ArticleId articleId
       newArticleName = "My First Article"
       newArticleContent = Just "This is the content of my first article."
       newArticle =

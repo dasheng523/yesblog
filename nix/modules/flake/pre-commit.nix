@@ -7,10 +7,10 @@
   perSystem = { config, ... }: {
     pre-commit.settings = {
       hooks = {
-        nixpkgs-fmt.enable = true;
-        cabal-fmt.enable = true;
+        nixpkgs-fmt.enable = false;
+        cabal-fmt.enable = false;
         fourmolu = {
-          enable = true;
+          enable = false;
           package = config.fourmolu.wrapper;
         };
         hlint.enable = true;

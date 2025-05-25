@@ -7,5 +7,45 @@
   "haskell.formattingProvider": "fourmolu",
   "haskell.manageHLS": "PATH",
   "nix.enableLanguageServer": true,
-  "nix.serverPath": "nixd"
+  "nix.serverPath": "nixd",
+  "mcp": {
+    "inputs": [],
+    "servers": {
+      "github.com/modelcontextprotocol/servers/tree/main/src/github": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-github"
+        ],
+        "env": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+        },
+      },
+      "github.com/upstash/context7-mcp": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@upstash/context7-mcp@latest"
+        ],
+      },
+      "haskell-hackage-mcp": {
+        "command": "python",
+        "args": [
+          "/home/yesheng/haskell-hackage-mcp/main.py"
+        ],
+      },
+      "github.com/modelcontextprotocol/servers/tree/main/src/git": {
+        "command": "uvx",
+        "args": [
+          "mcp-server-git"
+        ],
+      },
+      "fetch-mcp": {
+        "command": "uvx",
+        "args": [
+          "mcp-server-fetch"
+        ],
+      }
+    }
+  }
 }

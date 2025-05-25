@@ -44,6 +44,7 @@ library
   exposed-modules:
     Rel8Example
     Server
+    SnowflakeExample
 
   other-modules:      ApiType
   mixins:
@@ -77,6 +78,7 @@ library
     , filepath
     , hasql               >=1.8.1.4
     , hasql-pool          >=1.2.0.3
+    , http-api-data
     , http-media
     , lucid
     , mtl
@@ -88,6 +90,7 @@ library
     , servant-lucid
     , servant-server
     , shower
+    , snowflake
     , sqlite-simple
     , string-conversions
     , text
