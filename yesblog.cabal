@@ -50,7 +50,6 @@ library
     SnowflakeExample
 
   other-modules:
-    ApiType
     StaticFiles
 
   mixins:

@@ -5,6 +5,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Server where
@@ -12,7 +13,6 @@ module Server where
 import Data.Snowflake
 import Hasql.Pool qualified as Pool
 import Lucid
-import Lucid.Servant
 import Network.Wai.Handler.Warp qualified as Warp
 import Rel8
 import Rel8Example
@@ -28,6 +28,9 @@ data Env = Env
   , gen :: SnowflakeGen
   }
 
+linkToText :: (IsElem endpoint API, HasLink endpoint) => Proxy endpoint -> MkLink endpoint Text
+linkToText = safeLink' toUrlPiece api
+
 type AppM = ReaderT Env Handler
 
 type TagManagerAPI =
@@ -35,26 +38,23 @@ type TagManagerAPI =
     :<|> "create" :> ReqBody '[FormUrlEncoded] CreateTagForm :> Post '[HTML] (Html ())
     :<|> Capture "tagId" Text :> Servant.Delete '[HTML] (Html ())
 
+type CounterCountEndpoint = "counterCount" :> Get '[HTML] (Html ())
+type IncrementEndpoint = "increment" :> Post '[HTML] (Headers '[Header "HX-Trigger" Text] NoContent)
+
 -- API 类型定义
 type API =
   Get '[HTML] (Html ()) -- 根路径，显示主页
     :<|> "about" :> Get '[HTML] (Html ())
     :<|> "tags" :> Get '[HTML] (Html ())
     :<|> "counter" :> Get '[HTML] (Html ()) -- 计数器页面
-    :<|> "increment" :> Post '[HTML] (Headers '[Header "HX-Trigger" Text] NoContent) -- 增加计数器
-    :<|> "counterCount" :> Get '[HTML] (Html ())
+    :<|> IncrementEndpoint
+    :<|> CounterCountEndpoint
     :<|> "tag-manager" :> TagManagerAPI -- 标签管理页面
     :<|> "article-manager" :> Get '[HTML] (Html ()) -- 文章管理页面
     :<|> "static" :> Raw
 
 api :: Proxy API
 api = Proxy
-
-apiLink_ ::
-  (IsElem endpoint API, HasLink endpoint) =>
-  Proxy endpoint ->
-  MkLink endpoint Attribute
-apiLink_ = safeAbsHref_ (Proxy :: Proxy API)
 
 -- ServerT 版本，所有 Handler 都在 ReaderT Env Handler monad 中
 server :: ServerT API AppM
@@ -149,12 +149,12 @@ counterR = do
       "Current count: "
       span_
         [ id_ "counter-display"
-        , data_ "hx-get" "/counterCount"
+        , data_ "hx-get" (linkToText $ Proxy @CounterCountEndpoint)
         , data_ "hx-trigger" "my-custom-event from:body"
         ]
         countHtml
     button_
-      [ data_ "hx-post" "/increment"
+      [ data_ "hx-post" (linkToText $ Proxy @IncrementEndpoint)
       , data_ "hx-swap" "none"
       ]
       "Increment"
