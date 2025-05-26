@@ -273,7 +273,7 @@ runApp = do
 
   -- 示例：更新标签
   let updatedTagName = "Functional Programming"
-  updatedTagResult <- updateTag newTagId (\t -> t {tagName = lit updatedTagName, tagUpdatedAt = lit currentTime}) pool
+  updatedTagResult <- updateTag newTagId (\t -> t{tagName = lit updatedTagName, tagUpdatedAt = lit currentTime}) pool
   case updatedTagResult of
     Left err -> putStrLn $ "Error updating tag: " ++ show err
     Right tags -> putStrLn $ "Updated tag: " ++ show tags
@@ -309,7 +309,7 @@ runApp = do
 
   -- 示例：更新文章
   let updatedArticleContent = Just "This is the updated content."
-  updatedArticleResult <- updateArticle newArticleId (\a -> a {articleContent = lit updatedArticleContent, articleUpdatedAt = lit currentTime}) pool
+  updatedArticleResult <- updateArticle newArticleId (\a -> a{articleContent = lit updatedArticleContent, articleUpdatedAt = lit currentTime}) pool
   case updatedArticleResult of
     Left err -> putStrLn $ "Error updating article: " ++ show err
     Right articles -> putStrLn $ "Updated article: " ++ show articles

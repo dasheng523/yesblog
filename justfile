@@ -13,3 +13,6 @@ repl *ARGS:
 # Run ghcid -- auto-recompile and run `main` function
 run:
     ghcid -T :main
+
+tailwind:
+    npx @tailwindcss/cli -i ./input.css -o ./static/css/output.css --watch

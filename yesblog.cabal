@@ -1,17 +1,15 @@
-cabal-version:      2.4
-name:               yesblog
-version:            0.1.0.0
-license:            MIT
-copyright:          2022 yesheng
-maintainer:         srid@srid.ca
-author:             yesheng
-category:           Web
-homepage:           https://srid.ca/yesblog
-
+cabal-version: 2.4
+name: yesblog
+version: 0.1.0.0
+license: MIT
+copyright: 2022 yesheng
+maintainer: srid@srid.ca
+author: yesheng
+category: Web
+homepage: https://srid.ca/yesblog
 -- TODO: Before hackage release.
 -- A short (one-line) description of the package.
-synopsis:           A template for Haskell projects using Nix
-
+synopsis: A template for Haskell projects using Nix
 -- A longer description of the package.
 -- description:
 -- A URL where users can report bugs.
@@ -22,35 +20,43 @@ extra-source-files:
 
 common warnings
   ghc-options:
-    -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns
-    -Wmissing-deriving-strategies -Wunused-foralls -Wunused-foralls
-    -fprint-explicit-foralls -fprint-explicit-kinds -threaded
+    -Wall
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wmissing-deriving-strategies
+    -Wunused-foralls
+    -Wunused-foralls
+    -fprint-explicit-foralls
+    -fprint-explicit-kinds
+    -threaded
 
 executable yesblog
-  import:           warnings
-  main-is:          Main.hs
+  import: warnings
+  main-is: Main.hs
   build-depends:
-    , base     >=4 && <5
-    , yesblog
+    base >=4 && <5,
+    yesblog,
 
   -- Directories containing source files.
-  hs-source-dirs:   app
-
+  hs-source-dirs: app
   -- Base language which the package is written in.
   default-language: Haskell2010
 
 library
-  import:             warnings
+  import: warnings
   exposed-modules:
     Rel8Example
     Server
     SnowflakeExample
 
-  other-modules:      ApiType
+  other-modules:
+    ApiType
+    StaticFiles
+
   mixins:
     base hiding (Prelude),
     relude (Relude as Prelude, Relude.Container.One),
-    relude
+    relude,
 
   default-extensions:
     DataKinds
@@ -65,39 +71,40 @@ library
     ViewPatterns
 
   build-depends:
-    , aeson
-    , async
-    , attoparsec
-    , base                >=4       && <5
-    , base-compat
-    , blaze-html
-    , blaze-markup
-    , bytestring
-    , data-default
-    , directory
-    , filepath
-    , hasql               >=1.8.1.4
-    , hasql-pool          >=1.2.0.3
-    , http-api-data
-    , http-media
-    , lucid
-    , mtl
-    , optics-core
-    , profunctors
-    , rel8
-    , relude              >=1.0
-    , servant
-    , servant-lucid
-    , servant-server
-    , shower
-    , snowflake
-    , sqlite-simple
-    , string-conversions
-    , text
-    , time
-    , wai
-    , warp
-    , with-utf8
+    aeson,
+    async,
+    attoparsec,
+    base >=4 && <5,
+    base-compat,
+    blaze-html,
+    blaze-markup,
+    bytestring,
+    data-default,
+    directory,
+    filepath,
+    hasql >=1.8.1.4,
+    hasql-pool >=1.2.0.3,
+    http-api-data,
+    http-media,
+    lucid,
+    mtl,
+    optics-core,
+    profunctors,
+    rel8,
+    relude >=1.0,
+    servant,
+    servant-lucid,
+    servant-server,
+    shower,
+    snowflake,
+    sqlite-simple,
+    string-conversions,
+    template-haskell,
+    text,
+    time,
+    wai,
+    warp,
+    with-utf8,
 
-  hs-source-dirs:     src
-  default-language:   Haskell2010
+  hs-source-dirs: src
+  default-language: Haskell2010

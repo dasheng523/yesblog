@@ -4,6 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Server where
@@ -17,6 +18,7 @@ import Rel8
 import Rel8Example
 import Servant
 import Servant.HTML.Lucid
+import StaticFiles
 import Web.FormUrlEncoded (FromForm (..), parseUnique)
 
 -- 全局环境类型，包含数据库连接池和计数器
@@ -28,16 +30,22 @@ data Env = Env
 
 type AppM = ReaderT Env Handler
 
+type TagManagerAPI =
+  Get '[HTML] (Html ()) -- 标签管理页面
+    :<|> "create" :> ReqBody '[FormUrlEncoded] CreateTagForm :> Post '[HTML] (Html ())
+    :<|> Capture "tagId" Text :> Servant.Delete '[HTML] (Html ())
+
 -- API 类型定义
 type API =
   Get '[HTML] (Html ()) -- 根路径，显示主页
     :<|> "about" :> Get '[HTML] (Html ())
     :<|> "tags" :> Get '[HTML] (Html ())
     :<|> "counter" :> Get '[HTML] (Html ()) -- 计数器页面
-    :<|> "increment" :> Post '[HTML] (Html ()) -- 增加计数器
-    :<|> "tag-manager" :> Get '[HTML] (Html ()) -- 标签管理页面
-    :<|> "tag-manager" :> "create" :> ReqBody '[FormUrlEncoded] CreateTagForm :> Post '[HTML] (Html ())
+    :<|> "increment" :> Post '[HTML] (Headers '[Header "HX-Trigger" Text] NoContent) -- 增加计数器
+    :<|> "counterCount" :> Get '[HTML] (Html ())
+    :<|> "tag-manager" :> TagManagerAPI -- 标签管理页面
     :<|> "article-manager" :> Get '[HTML] (Html ()) -- 文章管理页面
+    :<|> "static" :> Raw
 
 api :: Proxy API
 api = Proxy
@@ -56,15 +64,23 @@ server =
     :<|> tagsR
     :<|> counterR
     :<|> incrementR
-    :<|> tagManagerR
-    :<|> createTagR
+    :<|> counterCountR
+    :<|> tagManagerServer
     :<|> articleManagerR
+    :<|> serveDirectoryWebApp "static"
+
+tagManagerServer :: ServerT TagManagerAPI AppM
+tagManagerServer =
+  tagManagerR
+    :<|> createTagR
+    :<|> deleteTagR
 
 -- 网站通用布局，包含 HTMX、导航栏等
 siteLayout :: Text -> Html () -> Html ()
 siteLayout title inner = html_ $ do
   head_ $ do
     title_ (toHtml title)
+    link_ [rel_ "stylesheet", href_ $(staticFile "css/output.css")]
     script_ [src_ "https://unpkg.com/htmx.org@1.9.10"] ("" :: Html ())
   body_ $ do
     nav_ [class_ "navbar"] $ do
@@ -89,7 +105,7 @@ pageWithTitle = siteLayout
 -- 首页 Handler，复用全局 Pool
 homeR :: AppM (Html ())
 homeR = do
-  Env {..} <- ask
+  Env{..} <- ask
   eTags <- liftIO $ runQuery envPool allTags
   case eTags of
     Left err -> do
@@ -126,42 +142,60 @@ tagsR = return $
 -- 计数器页面 Handler
 counterR :: AppM (Html ())
 counterR = do
-  Env {..} <- ask
-  currentCount <- liftIO $ readIORef envCounter
+  countHtml <- counterCountR
   return $ siteLayout "HTMX Counter Example" $ do
     h1_ "HTMX Counter Example"
     p_ $ do
       "Current count: "
-      span_ [id_ "counter-display"] (toHtml (show currentCount :: Text))
+      span_
+        [ id_ "counter-display"
+        , data_ "hx-get" "/counterCount"
+        , data_ "hx-trigger" "my-custom-event from:body"
+        ]
+        countHtml
     button_
       [ data_ "hx-post" "/increment"
-      , data_ "hx-target" "#counter-display"
-      , data_ "hx-swap" "outerHTML"
+      , data_ "hx-swap" "none"
       ]
       "Increment"
     p_ $ a_ [href_ "/"] "Back to Home"
 
+counterCountR :: AppM (Html ())
+counterCountR = do
+  Env{..} <- ask
+  currentCount <- liftIO $ readIORef envCounter
+  return $ toHtml (show currentCount :: Text)
+
 -- 增加计数器 Handler
-incrementR :: AppM (Html ())
+incrementR :: AppM (Headers '[Header "HX-Trigger" Text] NoContent)
 incrementR = do
-  Env {..} <- ask
+  Env{..} <- ask
   _ <- liftIO $ modifyIORef envCounter (+ 1)
-  newCount <- liftIO $ readIORef envCounter
-  return $ span_ [id_ "counter-display"] $ toHtml (show (newCount :: Int) :: Text)
+  _ <- liftIO $ readIORef envCounter
+  return $ addHeader "my-custom-event" NoContent
 
 -- 渲染标签列表
 renderTagList :: [Tag Result] -> Html ()
 renderTagList tags = ul_ $ Prelude.for_ tags $ \tag -> li_ $ do
   toHtml (tagName tag)
+  " (ID: "
+  toHtml (unTagId $ tagId tag)
+  ") "
+  toHtml (tagName tag)
   " "
-  form_ [method_ "post", action_ "/tag-manager/delete"] $ do
-    input_ [type_ "hidden", name_ "id", value_ (show $ tagId tag)]
-    button_ [type_ "submit"] "删除"
+  form_
+    [ data_ "hx-delete" ("/tag-manager/" <> unTagId (tagId tag))
+    , data_ "hx-target" "#tag-list-section"
+    , data_ "hx-swap" "innerHTML"
+    , data_ "hx-confirm" ("确定要删除标签【" <> tagName tag <> "】吗？")
+    ]
+    $ do
+      button_ [type_ "submit"] "删除"
 
 -- 标签管理 Handler（简单 CRUD 占位）
 tagManagerR :: AppM (Html ())
 tagManagerR = do
-  Env {..} <- ask
+  Env{..} <- ask
   eTags <- liftIO $ runQuery envPool $ getTagsPaginated 1 10
   case eTags of
     Left err ->
@@ -199,11 +233,30 @@ newtype CreateTagForm = CreateTagForm {name :: Text}
 instance FromForm CreateTagForm where
   fromForm f = CreateTagForm <$> parseUnique "name" f
 
+newtype CreateIdForm = CreateIdForm {id :: Text}
+  deriving stock (Show, Generic)
+
+instance FromForm CreateIdForm where
+  fromForm f = CreateIdForm <$> parseUnique "id" f
+
 -- 新增标签 Handler
 createTagR :: CreateTagForm -> AppM (Html ())
 createTagR (CreateTagForm tagName') = do
-  Env {..} <- ask
+  Env{..} <- ask
   _ <- liftIO $ createTagWithName gen envPool tagName'
+  eTags <- liftIO $ runQuery envPool $ getTagsPaginated 1 10
+  case eTags of
+    Left err -> return $ p_ [] $ toHtml (("Error: " <> show err) :: Text)
+    Right tags -> do
+      return $ div_ [id_ "tag-list-section"] $ do
+        p_ "标签列表："
+        renderTagList tags
+
+-- 删除标签 Handler
+deleteTagR :: Text -> AppM (Html ())
+deleteTagR tagIdText = do
+  Env{..} <- ask
+  _ <- liftIO $ deleteTag (TagId tagIdText) envPool
   eTags <- liftIO $ runQuery envPool $ getTagsPaginated 1 10
   case eTags of
     Left err -> return $ p_ [] $ toHtml (("Error: " <> show err) :: Text)
@@ -215,7 +268,7 @@ createTagR (CreateTagForm tagName') = do
 -- 文章管理 Handler（简单 CRUD 占位）
 articleManagerR :: AppM (Html ())
 articleManagerR = do
-  Env {..} <- ask
+  Env{..} <- ask
   eArticles <- liftIO $ runQuery envPool (getArticlesPaginated 1 10)
   case eArticles of
     Left err ->
@@ -256,9 +309,9 @@ articleManagerR = do
 -- hoistServer 提升 AppM 到 Handler
 app :: Env -> Application
 app env = serve api $ hoistServer api (nt env) server
-  where
-    nt :: Env -> AppM a -> Handler a
-    nt env' x = runReaderT x env'
+ where
+  nt :: Env -> AppM a -> Handler a
+  nt env' x = runReaderT x env'
 
 -- 应用启动，acquire Pool/init Env/传递给 app
 runApp :: IO ()
