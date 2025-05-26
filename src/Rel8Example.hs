@@ -16,8 +16,8 @@ import Data.Snowflake
 import Data.Time
 import Hasql.Connection qualified as Connection
 import Hasql.Pool qualified as Pool
-import Hasql.Pool.Config (Config, acquisitionTimeout, agingTimeout, idlenessTimeout, initSession, observationHandler, settings, size, staticConnectionSettings)
-import Hasql.Session (statement)
+import Hasql.Pool.Config
+import Hasql.Session
 import Rel8
 
 -- | ArticleId 强类型
@@ -254,8 +254,8 @@ runApp = do
   -- 示例：新增标签
   putStrLn "\n--- Tag CRUD Examples ---"
   currentTime <- getCurrentTime
-  tagId <- generateSnowflakeId gen
-  let newTagId = TagId tagId
+  tagIdText <- generateSnowflakeId gen
+  let newTagId = TagId tagIdText
       newTagName = "Haskell"
       newTag =
         Tag
@@ -287,9 +287,9 @@ runApp = do
 
   -- 示例：新增文章
   putStrLn "\n--- Article CRUD Examples ---"
-  currentTime <- getCurrentTime
-  articleId <- generateSnowflakeId gen
-  let newArticleId = ArticleId articleId
+  currentTime2 <- getCurrentTime
+  articleIdText <- generateSnowflakeId gen
+  let newArticleId = ArticleId articleIdText
       newArticleName = "My First Article"
       newArticleContent = Just "This is the content of my first article."
       newArticle =
@@ -297,8 +297,8 @@ runApp = do
           { articleId = lit newArticleId
           , articleName = lit newArticleName
           , articleContent = lit newArticleContent
-          , articleCreatedAt = lit currentTime
-          , articleUpdatedAt = lit currentTime
+          , articleCreatedAt = lit currentTime2
+          , articleUpdatedAt = lit currentTime2
           , articleEnable = lit True
           }
   putStrLn $ "Creating article: " ++ show newArticleId
@@ -309,7 +309,7 @@ runApp = do
 
   -- 示例：更新文章
   let updatedArticleContent = Just "This is the updated content."
-  updatedArticleResult <- updateArticle newArticleId (\a -> a{articleContent = lit updatedArticleContent, articleUpdatedAt = lit currentTime}) pool
+  updatedArticleResult <- updateArticle newArticleId (\a -> a{articleContent = lit updatedArticleContent, articleUpdatedAt = lit currentTime2}) pool
   case updatedArticleResult of
     Left err -> putStrLn $ "Error updating article: " ++ show err
     Right articles -> putStrLn $ "Updated article: " ++ show articles
@@ -412,3 +412,16 @@ updateArticle aid = genericUpdate articleSchema (\a -> articleId a ==. lit aid)
 
 deleteArticle :: ArticleId -> Pool.Pool -> IO (Either Pool.UsageError [Article Result])
 deleteArticle aid = genericDelete articleSchema (\a -> articleId a ==. lit aid)
+
+-- | 通过ID获取单个标签
+getTagById :: TagId -> Query (Tag Expr)
+getTagById tid = do
+  tag <- each tagSchema
+  where_ (tagId tag ==. lit tid)
+  return tag
+
+-- | 更新标签名
+updateTagName :: TagId -> Text -> Pool.Pool -> IO (Either Pool.UsageError [Tag Result])
+updateTagName tid newName pool = do
+  now <- getCurrentTime
+  updateTag tid (\t -> t{tagName = lit newName, tagUpdatedAt = lit now}) pool

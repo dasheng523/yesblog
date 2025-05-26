@@ -4,7 +4,7 @@
 module StaticFiles where
 
 import Language.Haskell.TH
-import System.Directory (doesFileExist)
+import System.Directory
 
 {- | 编译期检查静态文件是否存在，并返回其 Web 路径（Text 类型）。
   如果文件不存在，则会触发编译错误。
