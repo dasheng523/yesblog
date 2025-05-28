@@ -16,3 +16,4 @@ result-*
 # gitdoc
 node_modules/
 static/css/output.css
+.vscode/settings.json

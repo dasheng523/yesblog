@@ -3,7 +3,6 @@
   "editor.formatOnType": true,
   "editor.formatOnSave": true,
   "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
-  // "nixEnvSelector.args": "--pure"
   "haskell.formattingProvider": "fourmolu",
   "haskell.manageHLS": "PATH",
   "nix.enableLanguageServer": true,
@@ -19,33 +18,36 @@
         ],
         "env": {
           "GITHUB_PERSONAL_ACCESS_TOKEN": ""
-        },
+        }
+
       },
       "github.com/upstash/context7-mcp": {
         "command": "npx",
         "args": [
           "-y",
           "@upstash/context7-mcp@latest"
-        ],
+        ]
       },
       "haskell-hackage-mcp": {
         "command": "python",
         "args": [
           "/home/yesheng/haskell-hackage-mcp/main.py"
-        ],
+        ]
       },
       "github.com/modelcontextprotocol/servers/tree/main/src/git": {
         "command": "uvx",
         "args": [
           "mcp-server-git"
-        ],
+        ]
       },
       "fetch-mcp": {
         "command": "uvx",
         "args": [
           "mcp-server-fetch"
-        ],
+        ]
       }
     }
-  }
+  },
+  "commentTranslate.source": "Copilot",
+  "commentTranslate.targetLanguage": "zh-CN"
 }
