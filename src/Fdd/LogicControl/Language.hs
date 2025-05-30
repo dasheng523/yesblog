@@ -1,0 +1,1 @@
+module Fdd.LogicControl.Language where

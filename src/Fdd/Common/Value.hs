@@ -1,0 +1,1 @@
+module Fdd.Common.Value where

@@ -13,7 +13,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Server where
+module Server (runApp) where
 
 import Data.Char
 import Data.Snowflake
@@ -113,9 +113,6 @@ siteLayout title inner = html_ $ do
       a_ [href_ "/article-manager"] "Article Manager"
     div_ [class_ "main-content"] inner
     footer_ [class_ "footer"] "© 2025 YesBlog"
-
-pageWithTitle :: Text -> Html () -> Html ()
-pageWithTitle = siteLayout
 
 homeR :: AppM (Html ())
 homeR = do

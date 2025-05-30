@@ -50,6 +50,23 @@ library
     SnowflakeExample
 
   other-modules:
+    Fdd.Andromeda
+    Fdd.Assets.DeviceDefinitions
+    Fdd.Assets.Vendors.AAA.Common
+    Fdd.Assets.Vendors.AAA.Components
+    Fdd.Assets.Vendors.AAA.ComponentsAPI
+    Fdd.Barometers
+    Fdd.Common.Value
+    Fdd.Hardware
+    Fdd.Hardware.Common
+    Fdd.Hardware.Impl.Component
+    Fdd.Hardware.Impl.Device
+    Fdd.Hardware.Language.Hdl
+    Fdd.LogicControl.Language
+    Fdd.Simulator.Language
+    Fdd.Simulator.Runtime
+    Fdd.Thermometer
+    MiniServant
     StaticFiles
 
   mixins:

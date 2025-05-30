@@ -10,7 +10,20 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Rel8Example where
+module Rel8Example (
+  allTags,
+  createTagWithName,
+  deleteTag,
+  getArticlesPaginated,
+  getPoolConfig,
+  getTagById,
+  getTagsPaginated,
+  runQuery,
+  updateTagName,
+  Article (..),
+  Tag (..),
+  TagId (..),
+) where
 
 import Data.Snowflake
 import Data.Time
