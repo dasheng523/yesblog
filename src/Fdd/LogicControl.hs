@@ -1,0 +1,3 @@
+module Fdd.LogicControl (
+
+) where

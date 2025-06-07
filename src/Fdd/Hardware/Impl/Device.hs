@@ -1,7 +1,4 @@
 module Fdd.Hardware.Impl.Device (
-    Device,
-    DevicePart (..),
-    WithHandler (..),
     makeDevice,
     blankDevice,
     getDevicePart,
@@ -11,10 +8,8 @@ import Fdd.Hardware.Common
 
 import qualified Data.Map.Lazy as Map
 import Fdd.Hardware.Impl.Component
+import Fdd.Hardware.Impl.Device.Types
 import Fdd.Hardware.Language.Hdl
-
-newtype DevicePart = DevicePart VendorComponent
-newtype Device = Device (Map ComponentIndex DevicePart)
 
 makeDevice ::
     VendorComponents -> -- 外部状态和真实上下文
@@ -49,26 +44,11 @@ validateComponent
 
 -- 更新字典
 addComponent :: ComponentIndex -> DevicePart -> Device -> Device
-addComponent idx part (Device parts) =
-    Device (Map.insert idx part parts)
+addComponent idx part (Device name parts) =
+    Device name (Map.insert idx part parts)
 
 blankDevice :: Device
-blankDevice = Device Map.empty
+blankDevice = Device "" Map.empty -- TODO: name
 
 getDevicePart :: ComponentIndex -> Device -> Maybe DevicePart
-getDevicePart idx (Device parts) = Map.lookup idx parts
-
--- 怎么想到这个class呢？
-class WithHandler handlerAPI where
-    withHandler ::
-        DevicePart ->
-        (handlerAPI -> IO ()) ->
-        IO ()
-
-instance WithHandler SensorAPI where
-    withHandler (DevicePart (VendoredSensor _ handler)) f = f handler
-    withHandler _ _ = error "Invalid part API handler"
-
-instance WithHandler ControllerAPI where
-    withHandler (DevicePart (VendoredController _ handler)) f = f handler
-    withHandler _ _ = error "Invalid part API handler"
+getDevicePart idx (Device _ parts) = Map.lookup idx parts

@@ -34,7 +34,7 @@ executable yesblog
   import: warnings
   main-is: Main.hs
   build-depends:
-    base >=4 && <5,
+    base >=4.7 && <5,
     yesblog,
 
   -- Directories containing source files.
@@ -45,27 +45,36 @@ executable yesblog
 library
   import: warnings
   exposed-modules:
-    Rel8Example
-    Server
-    SnowflakeExample
-
-  other-modules:
+    Fdd
     Fdd.Andromeda
+    Fdd.Assets
     Fdd.Assets.DeviceDefinitions
+    Fdd.Assets.Scripts
     Fdd.Assets.Vendors.AAA.Common
     Fdd.Assets.Vendors.AAA.Components
     Fdd.Assets.Vendors.AAA.ComponentsAPI
+    Fdd.Assets.Vendors.AAA.HardwareService
     Fdd.Barometers
+    Fdd.Calculations
+    Fdd.Common
     Fdd.Common.Value
     Fdd.Hardware
     Fdd.Hardware.Common
     Fdd.Hardware.Impl.Component
     Fdd.Hardware.Impl.Device
+    Fdd.Hardware.Impl.Device.Types
+    Fdd.Hardware.Impl.Service
     Fdd.Hardware.Language.Hdl
+    Fdd.LogicControl
     Fdd.LogicControl.Language
+    Fdd.Simulator
     Fdd.Simulator.Language
     Fdd.Simulator.Runtime
-    Fdd.Thermometer
+    Rel8Example
+    Server
+    SnowflakeExample
+
+  other-modules:
     MiniServant
     StaticFiles
 
@@ -90,7 +99,7 @@ library
     aeson,
     async,
     attoparsec,
-    base >=4 && <5,
+    base >=4.7 && <5,
     base-compat,
     blaze-html,
     blaze-markup,
@@ -123,4 +132,62 @@ library
     with-utf8,
 
   hs-source-dirs: src
+  default-language: Haskell2010
+
+test-suite functional
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+    Fdd.HardwareSpec
+    Fdd.LogicControlSpec
+    Fdd.Test.HardwareService
+    Fdd.TestData.Components
+
+  mixins:
+    base hiding (Prelude),
+    relude (Relude as Prelude, Relude.Container.One),
+    relude,
+
+  hs-source-dirs:
+    test/
+
+  default-extensions:
+    DeriveFunctor
+    DeriveGeneric
+    ExplicitNamespaces
+    LambdaCase
+    MultiParamTypeClasses
+    MultiWayIf
+    NamedFieldPuns
+    OverloadedStrings
+    RecordWildCards
+    ScopedTypeVariables
+    TupleSections
+    ViewPatterns
+
+  ghc-options:
+    -threaded
+    -rtsopts
+    -with-rtsopts=-N
+
+  build-depends:
+    base >=4.7 && <5,
+    bytestring,
+    containers,
+    free,
+    hspec,
+    lens,
+    mtl,
+    newtype-generics,
+    random,
+    relude >=1.0,
+    scientific,
+    template-haskell,
+    text,
+    time,
+    transformers,
+    uuid,
+    void,
+    yesblog,
+
   default-language: Haskell2010
