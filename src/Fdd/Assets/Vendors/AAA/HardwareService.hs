@@ -4,12 +4,14 @@ module Fdd.Assets.Vendors.AAA.HardwareService (
 
 import Fdd.Assets.Vendors.AAA.ComponentsAPI (aaaVendorComponents)
 import Fdd.Hardware (HardwareService (..))
-import qualified Fdd.Hardware.Impl.Device as D
+import qualified Fdd.Hardware.Impl.Device as Impl
 
 aaaHardwareService :: HardwareService
 aaaHardwareService =
     HardwareService
-        { makeDevice = pure . D.makeDevice aaaVendorComponents
-        , getBlankDevice = pure D.blankDevice
-        , getDevicePart = \idx device -> pure (D.getDevicePart idx device)
+        { makeController = Impl.makeController aaaVendorComponents
+        , makeDevicePart = Impl.makeDevicePart aaaVendorComponents
+        , makeBlankDevice = Impl.makeBlankDevice
+        , addDevicePart = Impl.addDevicePart
+        , getDevicePart = Impl.getDevicePart
         }

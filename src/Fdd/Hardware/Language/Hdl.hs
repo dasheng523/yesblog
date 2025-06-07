@@ -1,10 +1,10 @@
 module Fdd.Hardware.Language.Hdl where
 
 import Fdd.Hardware.Common
+import Fdd.Hardware.Domain
 
-type ComponentIndex = String
+type Hdl next = [HdlMethod next]
 
-data ComponentDef
-    = ComponentDef ComponentIndex ComponentPassport
-
-type Hdl = [ComponentDef]
+data HdlMethod next
+    = SetupController DeviceName ControllerName ComponentPassport (Controller -> next)
+    | RegisterComponent Controller ComponentIndex ComponentPassport

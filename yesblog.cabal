@@ -57,15 +57,20 @@ library
     Fdd.Barometers
     Fdd.Calculations
     Fdd.Common
+    Fdd.Common.Types
     Fdd.Common.Value
     Fdd.Hardware
     Fdd.Hardware.Common
+    Fdd.Hardware.Domain
     Fdd.Hardware.Impl.Component
     Fdd.Hardware.Impl.Device
     Fdd.Hardware.Impl.Device.Types
+    Fdd.Hardware.Impl.Runtime
     Fdd.Hardware.Impl.Service
+    Fdd.Hardware.Language.DeviceControl
     Fdd.Hardware.Language.Hdl
     Fdd.LogicControl
+    Fdd.LogicControl.Domain
     Fdd.LogicControl.Language
     Fdd.Simulator
     Fdd.Simulator.Language
@@ -138,7 +143,6 @@ test-suite functional
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-    Fdd.HardwareSpec
     Fdd.LogicControlSpec
     Fdd.Test.HardwareService
     Fdd.TestData.Components

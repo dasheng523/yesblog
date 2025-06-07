@@ -3,22 +3,22 @@ module Fdd.Hardware.Impl.Device.Types (
     Device (..),
     DevicePart (..),
     WithHandler (..),
+    ControllerImpl (..),
 ) where
 
+import Fdd.Hardware.Domain
 import Fdd.Hardware.Impl.Component
-import Fdd.Hardware.Language.Hdl
 
-type DeviceName = String
+data ControllerImpl = ControllerImpl ControllerName VendorComponent
 
 newtype DevicePart = DevicePart VendorComponent
-data Device = Device DeviceName (Map ComponentIndex DevicePart)
+data Device = Device DeviceName ControllerImpl (Map ComponentIndex DevicePart)
 
--- 怎么想到这个class呢？
 class WithHandler handlerAPI where
     withHandler ::
         DevicePart ->
-        (handlerAPI -> IO ()) ->
-        IO ()
+        (handlerAPI -> IO a) ->
+        IO a
 
 instance WithHandler SensorAPI where
     withHandler (DevicePart (VendoredSensor _ handler)) f = f handler
