@@ -65,12 +65,15 @@ library
     Fdd.Hardware.Impl.Component
     Fdd.Hardware.Impl.Device
     Fdd.Hardware.Impl.Device.Types
+    Fdd.Hardware.Impl.Interpreters.DeviceControl
+    Fdd.Hardware.Impl.Interpreters.Hdl
     Fdd.Hardware.Impl.Runtime
     Fdd.Hardware.Impl.Service
     Fdd.Hardware.Language.DeviceControl
     Fdd.Hardware.Language.Hdl
     Fdd.LogicControl
     Fdd.LogicControl.Domain
+    Fdd.LogicControl.Impl.Interpreters.LogicControl
     Fdd.LogicControl.Language
     Fdd.Simulator
     Fdd.Simulator.Language
