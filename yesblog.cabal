@@ -112,6 +112,7 @@ library
     blaze-html,
     blaze-markup,
     bytestring,
+    containers,
     data-default,
     directory,
     filepath,

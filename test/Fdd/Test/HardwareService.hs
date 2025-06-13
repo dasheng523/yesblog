@@ -14,23 +14,23 @@ mockedThermometer1 = DevicePart (VendoredSensor thermometer1Passp thermometer1Ha
 mockedPressure1 :: DevicePart
 mockedPressure1 = DevicePart (VendoredSensor pressure1Passp pressure1Handler)
 
-mockedHardwareService :: HardwareService
-mockedHardwareService =
-    HardwareService
-        { makeDevice = mockedMakeDevice "mocked"
-        , getBlankDevice = error "getBlankDevice not supported"
-        , getDevicePart = mockedGetDevicePart
-        }
+-- mockedHardwareService :: HardwareService
+-- mockedHardwareService =
+--     HardwareService
+--         { makeDevice = mockedMakeDevice "mocked"
+--         , getBlankDevice = error "getBlankDevice not supported"
+--         , getDevicePart = mockedGetDevicePart
+--         }
 
-mockedMakeDevice :: DeviceName -> Hdl -> IO Device
-mockedMakeDevice name _ = pure (Device name mempty)
+-- mockedMakeDevice :: DeviceName -> Hdl -> IO Device
+-- mockedMakeDevice name _ = pure (Device name mempty)
 
-mockedGetDevicePart ::
-    ComponentIndex ->
-    Device ->
-    IO (Maybe DevicePart)
-mockedGetDevicePart idx device =
-    case (idx, device) of
-        ("t1", Device "mocked" _) -> pure (Just mockedThermometer1)
-        ("p1", Device "mocked" _) -> pure (Just mockedPressure1)
-        _ -> pure Nothing
+-- mockedGetDevicePart ::
+--     ComponentIndex ->
+--     Device ->
+--     IO (Maybe DevicePart)
+-- mockedGetDevicePart idx device =
+--     case (idx, device) of
+--         ("t1", Device "mocked" _) -> pure (Just mockedThermometer1)
+--         ("p1", Device "mocked" _) -> pure (Just mockedPressure1)
+--         _ -> pure Nothing
