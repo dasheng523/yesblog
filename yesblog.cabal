@@ -73,7 +73,7 @@ library
     Fdd.Hardware.Language.Hdl
     Fdd.LogicControl
     Fdd.LogicControl.Domain
-    Fdd.LogicControl.Impl.Interpreters.LogicControl
+    Fdd.LogicControl.Impl.Interpreter
     Fdd.LogicControl.Language
     Fdd.Simulator
     Fdd.Simulator.Language
@@ -116,6 +116,7 @@ library
     data-default,
     directory,
     filepath,
+    free,
     hasql >=1.8.1.4,
     hasql-pool >=1.2.0.3,
     http-api-data,

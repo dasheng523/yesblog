@@ -8,15 +8,18 @@ import Fdd.Assets.Vendors.AAA.HardwareService (aaaHardwareService)
 import Fdd.TestData.Components (pressure1Passp, thermometer1Passp)
 
 import qualified Fdd.Hardware.Impl.Device.Types as TImpl
+import qualified Fdd.Hardware.Impl.Interpreters.DeviceControl as DCImpl
 import qualified Fdd.Hardware.Impl.Interpreters.Hdl as HdlImpl
 import qualified Fdd.Hardware.Impl.Runtime as RImpl
 import qualified Fdd.Hardware.Impl.Service as SImpl
+
+import qualified Fdd.LogicControl.Impl.Interpreter as LCImpl
+
+import qualified Fdd.Hardware.Language.DeviceControl as L
 import qualified Fdd.Hardware.Language.Hdl as L
+import qualified Fdd.LogicControl.Language as L
 
-import qualified Fdd.LogicControl.Impl.Interpreters.LogicControl as LCImpl
-
-import qualified Data.Map as Map
-import Fdd.Hardware.Language.DeviceControl
+import qualified Fdd.TestData.Scripts as Test
 
 verifyTemperature :: Float -> SensorAPI -> IO ()
 verifyTemperature temp handler = do
