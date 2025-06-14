@@ -1,11 +1,11 @@
 module Fdd.LogicControlSpec where
 
-import Fdd
 import Test.Hspec
 
-import Fdd.Assets (aaaController86Name, boostersDef)
+import Fdd
+
+import Fdd.Assets (aaaController86Name, createBoosters)
 import Fdd.Assets.Vendors.AAA.HardwareService (aaaHardwareService)
-import Fdd.TestData.Components (pressure1Passp, thermometer1Passp)
 
 import qualified Fdd.Hardware.Impl.Device.Types as TImpl
 import qualified Fdd.Hardware.Impl.Interpreters.DeviceControl as DCImpl
@@ -21,93 +21,25 @@ import qualified Fdd.LogicControl.Language as L
 
 import qualified Fdd.TestData.Scripts as Test
 
-verifyTemperature :: Float -> SensorAPI -> IO ()
-verifyTemperature temp handler = do
-    measurement <- readMeasurement handler
-    measurement `shouldBe` Measurement Temperature temp
-
-getDevice :: RImpl.Runtime -> ControllerName -> IO TImpl.Device
-getDevice runtime ctrlName = do
-    let devices = RImpl._devices runtime
-    case Map.lookup (Controller ctrlName) devices of
-        Nothing -> fail "Controller not found"
-        Just (_, device) -> pure device
-
-getDevicePart' ::
-    RImpl.Runtime ->
-    ComponentIndex ->
-    ComponentName ->
-    IO (Maybe TImpl.DevicePart)
-getDevicePart' runtime idx ctrlName = do
-    let service = RImpl._hardwareService runtime
-    device <- getDevice runtime ctrlName
-    SImpl.getDevicePart service idx device
-
-testScript :: LogicControl
-testScript =
-    [ EvalHdl
-        [ SetupController
-            "device"
-            "ctrl"
-            aaaController86Passport
-            ( \ctrl ->
-                [ EvalHdl
-                    [RegisterComponent ctrl "therm" aaaTemperature25Passport]
-                , EvalDeviceControl (readAndReport ctrl)
-                ]
-            )
-        ]
-    ]
-  where
-    readAndReport :: Controller -> DeviceControl LogicControl
-    readAndReport ctrl =
-        [ ReadSensor
-            ctrl
-            "therm"
-            ( \eMesurement ->
-                [Report (show eMesurement)]
-            )
-        ]
-
-testBoostersDef :: Hdl (Hdl (Hdl ()))
-testBoostersDef =
-    [ SetupController
-        "left booster"
-        "left b ctrl"
-        aaaController86Passport
-        ( \lCtrl ->
-            [ RegisterComponent lCtrl "nozzle1-t" aaaTemperature25Passport
-            , RegisterComponent lCtrl "nozzle1-p" aaaTemperature25Passport
-            , SetupController
-                "right booster"
-                "right b ctrl"
-                aaaController86Passport
-                ( \rCtrl ->
-                    [ RegisterComponent rCtrl "nozzle2-t" aaaTemperature25Passport
-                    , RegisterComponent rCtrl "nozzle2-p" aaaPressure02Passport
-                    ]
-                )
-            ]
-        )
-    ]
+getBoostersStatus :: LogicControl (Either LogicFailure (ControllerStatus, ControllerStatus))
+getBoostersStatus = do
+    (lCtrl, rCtrl) <- L.evalHdl Test.createBoosters
+    eLStatus <- Test.getControllerStatus lCtrl
+    eRStatus <- Test.getControllerStatus rCtrl
+    pure $ case (eLStatus, eRStatus) of
+        (Right s1, Right s2) -> Right (s1, s2)
+        (Left e, _) -> Left $ LogicFailure $ show e
+        (_, Left e) -> Left $ LogicFailure $ show e
 
 spec :: Spec
 spec =
-    describe "Hardware tests" $ do
-        it "Hardware device components check" $ do
-            let runtime = RImpl.Runtime Map.empty aaaHardwareService
-            runtime' <- LCImpl.runLogicControl runtime testScript
-            mbTherm <- getDevicePart' runtime' "therm" "ctrl"
+    describe "Logic Control tests" $ do
+        it "Controller status check" $ do
+            runtime <- RImpl.createHardwareRuntime aaaHardwareService
+            eResult <- LCImpl.runLogicControl runtime getBoostersStatus
 
-            case mbTherm of
-                Nothing -> fail "There is no such component"
-                Just thermometer -> putStrLn "Component found."
-
-        it "Hardware device component method run" $ do
-            let runtime = RImpl.Runtime Map.empty aaaHardwareService
-            runtime' <- LCImpl.runLogicControl runtime testScript
-            mbTherm <- getDevicePart' runtime' "therm" "ctrl"
-
-            case mbTherm of
-                Nothing -> fail "There is no such component"
-                Just thermometer -> TImpl.withHandler thermometer (verifyTemperature 100.0)
+            case eResult of
+                Left e -> fail $ show e
+                Right (lStatus, rStatus) -> do
+                    lStatus `shouldBe` ControllerOk
+                    rStatus `shouldBe` ControllerOk

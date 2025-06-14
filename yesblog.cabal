@@ -49,7 +49,6 @@ library
     Fdd.Andromeda
     Fdd.Assets
     Fdd.Assets.DeviceDefinitions
-    Fdd.Assets.Scripts
     Fdd.Assets.Vendors.AAA.Common
     Fdd.Assets.Vendors.AAA.Components
     Fdd.Assets.Vendors.AAA.ComponentsAPI
@@ -57,7 +56,6 @@ library
     Fdd.Barometers
     Fdd.Calculations
     Fdd.Common
-    Fdd.Common.Types
     Fdd.Common.Value
     Fdd.Hardware
     Fdd.Hardware.Common
@@ -148,9 +146,11 @@ test-suite functional
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+    Fdd.HardwareSpec
     Fdd.LogicControlSpec
     Fdd.Test.HardwareService
     Fdd.TestData.Components
+    Fdd.TestData.Scripts
 
   mixins:
     base hiding (Prelude),

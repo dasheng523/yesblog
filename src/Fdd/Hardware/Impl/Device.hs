@@ -8,13 +8,15 @@ module Fdd.Hardware.Impl.Device (
 
 import Fdd.Hardware.Common
 
-import qualified Data.Map.Lazy as Map
+import qualified Data.Map as Map
 import Fdd.Hardware.Domain
 import Fdd.Hardware.Impl.Component
 import Fdd.Hardware.Impl.Device.Types
 
 makeBlankDevice :: DeviceName -> ControllerImpl -> IO Device
-makeBlankDevice name ctrlImpl = pure $ Device name ctrlImpl Map.empty
+makeBlankDevice name ctrlImpl = do
+    partsRef <- newIORef Map.empty
+    pure $ Device name ctrlImpl partsRef
 
 makeDevicePart :: VendorComponents -> ComponentPassport -> IO (Either String DevicePart)
 makeDevicePart vendorComponents (ComponentPassport (Sensors _) cName _ cVendor) =
@@ -30,11 +32,12 @@ makeController vendorComponents ctrlName (ComponentPassport Controllers cName _ 
         Nothing -> Left ("Component not found: " <> cVendor <> " " <> cName)
 makeController _ _ _ = pure $ Left "Invalid/unknown component class for a controller."
 
-addDevicePart :: ComponentIndex -> DevicePart -> Device -> IO Device
-addDevicePart idx part (Device name ctrlImpl parts) = do
-    let parts' = Map.insert idx part parts
-    pure $ Device name ctrlImpl parts'
+addDevicePart :: ComponentIndex -> DevicePart -> Device -> IO ()
+addDevicePart idx part (Device _ _ partsRef) = do
+    parts <- readIORef partsRef
+    writeIORef partsRef (Map.insert idx part parts)
 
 getDevicePart :: ComponentIndex -> Device -> IO (Maybe DevicePart)
-getDevicePart idx (Device _ _ parts) =
+getDevicePart idx (Device _ _ partsRef) = do
+    parts <- readIORef partsRef
     pure $ Map.lookup idx parts

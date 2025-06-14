@@ -3,24 +3,36 @@ module Fdd.Assets.DeviceDefinitions where
 import Fdd.Assets.Vendors.AAA.Components
 import Fdd.Hardware
 
-boostersDef :: Hdl (Hdl ())
-boostersDef =
-    [ SetupController
-        "left booster"
-        "left b ctrl"
-        aaaController86Passport
-        ( \lCtrl ->
-            [ RegisterComponent lCtrl "nozzle1-t" aaaTemperature25Passport
-            , RegisterComponent lCtrl "nozzle1-p" aaaPressure02Passport
-            ]
-        )
-    , SetupController
-        "right booster"
-        "right b ctrl"
-        aaaController86Passport
-        ( \rCtrl ->
-            [ RegisterComponent rCtrl "nozzle2-t" aaaTemperature25Passport
-            , RegisterComponent rCtrl "nozzle2-p" aaaPressure02Passport
-            ]
-        )
-    ]
+type Boosters = (Controller, Controller)
+
+lBooster :: DeviceName
+lBooster = DeviceName "left booster"
+
+rBooster :: DeviceName
+rBooster = DeviceName "right booster"
+
+lBoosterController :: ControllerName
+lBoosterController = ControllerName "left b ctrl"
+
+rBoosterController :: ControllerName
+rBoosterController = ControllerName "right b ctrl"
+
+nozzle1p, nozzle1t :: ComponentIndex
+nozzle1p = ComponentIndex "nozzle1-p"
+nozzle1t = ComponentIndex "nozzle1-t"
+
+nozzle2p, nozzle2t :: ComponentIndex
+nozzle2p = ComponentIndex "nozzle2-p"
+nozzle2t = ComponentIndex "nozzle2-t"
+
+createBoosters :: Hdl Boosters
+createBoosters = do
+    lCtrl <- setupController lBooster lBoosterController aaaController86Passport
+    registerComponent lCtrl nozzle1p aaaPressure02Passport
+    registerComponent lCtrl nozzle1t aaaTemperature25Passport
+
+    rCtrl <- setupController rBooster rBoosterController aaaController86Passport
+    registerComponent rCtrl nozzle2p aaaPressure02Passport
+    registerComponent rCtrl nozzle2t aaaTemperature25Passport
+
+    pure (lCtrl, rCtrl)

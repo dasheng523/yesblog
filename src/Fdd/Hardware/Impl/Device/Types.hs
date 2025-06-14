@@ -12,7 +12,7 @@ import Fdd.Hardware.Impl.Component
 data ControllerImpl = ControllerImpl ControllerName VendorComponent
 
 newtype DevicePart = DevicePart VendorComponent
-data Device = Device DeviceName ControllerImpl (Map ComponentIndex DevicePart)
+data Device = Device DeviceName ControllerImpl (IORef (Map ComponentIndex DevicePart))
 
 class WithHandler handlerAPI where
     withHandler ::
