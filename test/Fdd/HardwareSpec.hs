@@ -23,7 +23,7 @@ import Fdd.Hardware.Impl.Runtime
 verifyTemperature :: Float -> SensorAPI -> IO ()
 verifyTemperature temp handler = do
     measurement <- readMeasurement handler
-    measurement `shouldBe` Measurement Temperature temp
+    measurement `shouldBe` SensorMeasurement (UnitTemperature $ Kelvin temp)
 
 getDevice :: RImpl.HardwareRuntime -> Controller -> IO (TImpl.ControllerImpl, TImpl.Device)
 getDevice RImpl.HardwareRuntime{_devicesRef} ctrl = do
@@ -32,7 +32,11 @@ getDevice RImpl.HardwareRuntime{_devicesRef} ctrl = do
         Nothing -> fail "Controller not found"
         Just deviceImpl -> pure deviceImpl
 
-getDevicePart' :: RImpl.HardwareRuntime -> ComponentIndex -> Controller -> IO (Maybe TImpl.DevicePart)
+getDevicePart' ::
+    RImpl.HardwareRuntime ->
+    ComponentIndex ->
+    Controller ->
+    IO (Maybe TImpl.DevicePart)
 getDevicePart' runtime idx ctrl = do
     let RImpl.HardwareRuntime{_devicesRef, _hardwareServiceRef} = runtime
     service <- readIORef _hardwareServiceRef
@@ -44,6 +48,7 @@ spec =
     describe "Hardware tests" $ do
         it "Hardware device components check" $ do
             runtime <- RImpl.createHardwareRuntime aaaHardwareService
+
             (leftBoosterCtrl, rightBoosterCtrl) <- HdlImpl.runHdl runtime Test.createBoosters
 
             mbThermometer1 <- getDevicePart' runtime nozzle1t leftBoosterCtrl
@@ -62,9 +67,10 @@ spec =
 
         it "Hardware device component method run" $ do
             runtime <- RImpl.createHardwareRuntime aaaHardwareService
+
             (leftBoosterCtrl, _) <- HdlImpl.runHdl runtime Test.createBoosters
             mbThermometer <- getDevicePart' runtime nozzle1t leftBoosterCtrl
 
             case mbThermometer of
                 Nothing -> fail "There is no such component"
-                Just thermometer -> TImpl.withHandler thermometer (verifyTemperature 100.0)
+                Just thermometer -> TImpl.withHandler thermometer (verifyTemperature 3000.0)

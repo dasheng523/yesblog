@@ -30,7 +30,13 @@ interpretLogicControlMethod
     _
     (L.Store _ _ next) = do
         pure $ next ()
+interpretLogicControlMethod
+    _
+    (L.Load _ _) = error "Load not implemented"
 
-runLogicControl :: RImpl.HardwareRuntime -> L.LogicControl a -> IO a
-runLogicControl hardwareRuntime =
-    foldFree (interpretLogicControlMethod hardwareRuntime)
+runLogicControl ::
+    RImpl.HardwareRuntime ->
+    L.LogicControl a ->
+    IO a
+runLogicControl hardwareRuntime (L.LogicControl lControl) =
+    foldFree (interpretLogicControlMethod hardwareRuntime) lControl

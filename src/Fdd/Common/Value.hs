@@ -5,6 +5,7 @@ data Value
     | IntValue Int
     | FloatValue Float
     | StringValue String
+    deriving stock (Show, Eq, Ord)
 
 boolValue :: Bool -> Value
 boolValue = BoolValue

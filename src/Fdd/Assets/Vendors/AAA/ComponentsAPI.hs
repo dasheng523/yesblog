@@ -1,25 +1,24 @@
 module Fdd.Assets.Vendors.AAA.ComponentsAPI where
 
+import qualified Data.Map as Map
 import Fdd.Assets.Vendors.AAA.Components
+import Fdd.Common
 import Fdd.Hardware.Common
 import Fdd.Hardware.Impl.Component
 
 aaaTemperature25Handler :: SensorAPI
 aaaTemperature25Handler =
   SensorAPI
-    { -- 不执行任何操作：
-      reset = putStrLn $ aaaTemperature25Name <> " reset."
-    , -- 返回一个虚拟温度：
-      readMeasurement = pure $ Measurement Temperature 100.0
-    , -- 不执行任何操作：
-      setCallback = \_ _ -> putStrLn $ aaaTemperature25Name <> " callback"
+    { reset = putStrLn $ aaaTemperature25Name <> " reset."
+    , readMeasurement = pure $ SensorMeasurement $ UnitTemperature $ Kelvin 3000.0 -- dummy
+    , setCallback = \_ _ -> putStrLn $ aaaTemperature25Name <> " callback."
     }
 
 aaaPressure02Handler :: SensorAPI
 aaaPressure02Handler =
   SensorAPI
     { reset = putStrLn $ aaaPressure02Name <> " reset."
-    , readMeasurement = pure $ Measurement Pressure 100.0 -- dummy
+    , readMeasurement = pure $ SensorMeasurement $ UnitPressure $ Pascal 40000.0 -- dummy
     , setCallback = \_ _ -> putStrLn $ aaaPressure02Name <> " callback."
     }
 
@@ -34,7 +33,7 @@ aaaController86Handler =
 
 aaaVendorComponents :: VendorComponents
 aaaVendorComponents =
-  fromList
+  Map.fromList
     [ (aaaTemperature25Name, VendoredSensor aaaTemperature25Passport aaaTemperature25Handler)
     , (aaaPressure02Name, VendoredSensor aaaPressure02Passport aaaPressure02Handler)
     , (aaaController86Name, VendoredController aaaController86Passport aaaController86Handler)

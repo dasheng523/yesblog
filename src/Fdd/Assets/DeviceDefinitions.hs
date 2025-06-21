@@ -34,5 +34,16 @@ createBoosters = do
     rCtrl <- setupController rBooster rBoosterController aaaController86Passport
     registerComponent rCtrl nozzle2p aaaPressure02Passport
     registerComponent rCtrl nozzle2t aaaTemperature25Passport
-
     pure (lCtrl, rCtrl)
+
+rotaryThruster :: DeviceName
+rotaryThruster = DeviceName "rotary thruster"
+
+rotaryThrusterController :: ControllerName
+rotaryThrusterController = ControllerName "rotary thruster ctrl"
+
+mainEngine :: DeviceName
+mainEngine = DeviceName "main engine"
+
+mainEngineController :: ControllerName
+mainEngineController = ControllerName "main engine ctrl"

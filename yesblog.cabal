@@ -56,6 +56,8 @@ library
     Fdd.Barometers
     Fdd.Calculations
     Fdd.Common
+    Fdd.Common.Physics
+    Fdd.Common.Property
     Fdd.Common.Value
     Fdd.Hardware
     Fdd.Hardware.Common
@@ -148,9 +150,12 @@ test-suite functional
   other-modules:
     Fdd.HardwareSpec
     Fdd.LogicControlSpec
+    Fdd.ScriptsSpec
     Fdd.Test.HardwareService
     Fdd.TestData.Components
     Fdd.TestData.Scripts
+    StateMonadSpec
+    StateTMonadSpec
 
   mixins:
     base hiding (Prelude),

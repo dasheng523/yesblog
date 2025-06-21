@@ -1,5 +1,6 @@
 module Fdd.Hardware.Impl.Component where
 
+import Fdd.Common.Physics
 import Fdd.Hardware.Common
 
 data VendorComponent
@@ -10,8 +11,8 @@ type VendorComponents = Map ComponentName VendorComponent
 
 data SensorAPI = SensorAPI
     { reset :: IO ()
-    , readMeasurement :: IO Measurement
-    , setCallback :: Period -> IO Measurement -> IO ()
+    , readMeasurement :: IO SensorMeasurement
+    , setCallback :: Period -> IO SensorMeasurement -> IO ()
     }
 
 data ControllerAPI = ControllerAPI
