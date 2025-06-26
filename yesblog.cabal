@@ -76,7 +76,11 @@ library
     Fdd.LogicControl.Impl.Interpreter
     Fdd.LogicControl.Language
     Fdd.Simulator
-    Fdd.Simulator.Language
+    Fdd.Simulator.Control
+    Fdd.Simulator.Hardware.Device
+    Fdd.Simulator.Hardware.Interpreters.DeviceControl
+    Fdd.Simulator.Hardware.Interpreters.Hdl
+    Fdd.Simulator.LogicControl.Interpreter
     Fdd.Simulator.Runtime
     Rel8Example
     Server
@@ -125,6 +129,7 @@ library
     mtl,
     optics-core,
     profunctors,
+    random,
     rel8,
     relude >=1.0,
     servant,
@@ -151,6 +156,8 @@ test-suite functional
     Fdd.HardwareSpec
     Fdd.LogicControlSpec
     Fdd.ScriptsSpec
+    Fdd.SimulatorSpec
+    Fdd.StatefulScriptsSpec
     Fdd.Test.HardwareService
     Fdd.TestData.Components
     Fdd.TestData.Scripts
