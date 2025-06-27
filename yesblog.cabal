@@ -85,6 +85,7 @@ library
     Rel8Example
     Server
     SnowflakeExample
+    Ys.WhenDoDsl
 
   other-modules:
     MiniServant
@@ -163,6 +164,7 @@ test-suite functional
     Fdd.TestData.Scripts
     StateMonadSpec
     StateTMonadSpec
+    Ys.ScriptsSpec
 
   mixins:
     base hiding (Prelude),
