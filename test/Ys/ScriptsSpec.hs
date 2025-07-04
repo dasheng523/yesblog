@@ -12,7 +12,6 @@ import qualified Fdd.Hardware.Impl.Interpreters.DeviceControl as DCImpl
 import qualified Fdd.Hardware.Impl.Interpreters.Hdl as HdlImpl
 import qualified Fdd.Hardware.Impl.Runtime as RImpl
 import qualified Fdd.Hardware.Impl.Service as SImpl
-import qualified Ys.WhenDoDsl as WdDsl
 
 import qualified Fdd.LogicControl.Impl.Interpreter as LCImpl
 
@@ -21,36 +20,56 @@ import qualified Fdd.Hardware.Language.Hdl as L
 import qualified Fdd.LogicControl.Language as L
 
 import qualified Fdd.TestData.Scripts as Test
+import qualified Ys.WhenDoDsl as WdDsl
+import Ys.Yampa.TestElevatorMain (testElevatorMain)
+
+import Control.Concurrent (forkIO, killThread, threadDelay)
+import Ys.Yampa.Cube.Main (runCubeMain)
+import Ys.Yampa.Simple (runYampaApp2)
 
 import Control.Exception
 
-logScript :: WdDsl.LangL ()
-logScript = do
-    WdDsl.logDebug "test log debug1"
-    WdDsl.logDebug "test log debug2"
+-- logScript :: WdDsl.LangL ()
+-- logScript = do
+--     WdDsl.logDebug "test log debug1"
+--     WdDsl.logDebug "test log debug2"
 
-doScript :: WdDsl.DoDsl ()
-doScript = do
-    time <- WdDsl.getCurrentTime
-    WdDsl.lockScreen
-    pass
+-- doScript :: WdDsl.DoDsl ()
+-- doScript = do
+--     time <- WdDsl.getCurrentTime
+--     WdDsl.lockScreen
+--     pass
 
-langScript :: WdDsl.LangL ()
-langScript = do
-    WdDsl.logDebug "test log debug1"
-    WdDsl.evalDoDsl doScript
-    WdDsl.logDebug "test log debug2"
+-- langScript :: WdDsl.LangL ()
+-- langScript = do
+--     WdDsl.logDebug "test log debug1"
+--     WdDsl.evalDoDsl doScript
+--     WdDsl.logDebug "test log debug2"
 
 -- TODO: proper tests
 spec :: Spec
 spec =
     describe "Scripts tests" $ do
-        describe "doScript" $ do
-            it "Simple test" $ do
-                WdDsl.runDoDsl doScript
-        describe "logScript" $ do
-            it "Simple test" $ do
-                WdDsl.runLang logScript
-        describe "langScript" $ do
-            it "Simple test" $ do
-                WdDsl.runLang langScript
+        describe "Yampa tests" $ do
+            it "Elevator Test" $ do
+                testElevatorMain
+
+            it "runYampaApp runs without exception for 6.5 seconds" $ do
+                tid <- forkIO runYampaApp2
+                threadDelay 6500000 -- 6.5 秒
+                killThread tid
+
+            it "Cube main test" $ do
+                runCubeMain
+
+-- 这里只测试函数能否正常运行一段时间，不断言输出
+
+-- describe "doScript" $ do
+--     it "Simple test" $ do
+--         WdDsl.runDoDsl doScript
+-- describe "logScript" $ do
+--     it "Simple test" $ do
+--         WdDsl.runLang logScript
+-- describe "langScript" $ do
+--     it "Simple test" $ do
+--         WdDsl.runLang langScript

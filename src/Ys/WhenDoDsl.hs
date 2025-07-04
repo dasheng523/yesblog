@@ -1,14 +1,32 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Ys.WhenDoDsl where
 
 import Control.Monad.Free
-import Data.Time.Clock.POSIX (getPOSIXTime)
+import Data.Time.Clock.POSIX (POSIXTime, getPOSIXTime)
 
-newtype Timestamp = Timestamp Int
+newtype Timestamp = Timestamp POSIXTime
     deriving stock (Show)
 
+type Second = Int
+
+------------- WhenL
+data WhenMethod next where
+    AtTimestamp :: Timestamp -> (() -> next) -> WhenMethod next
+    AfterSeconds :: Second -> (() -> next) -> WhenMethod next
+
+instance Functor WhenMethod where
+    fmap f (AtTimestamp timestamp cb) = AtTimestamp timestamp (f . cb)
+    fmap f (AfterSeconds timestamp cb) = AfterSeconds timestamp (f . cb)
+
+newtype WhenL a = WhenL (Free WhenMethod a)
+    deriving newtype (Functor, Applicative, Monad)
+
+------------ DoDSL
 data DoMethod next
     = GetCurrentTime (Timestamp -> next)
     | LockScreen (() -> next)
@@ -19,19 +37,19 @@ instance Functor DoMethod where
     fmap f (LockScreen cb) = LockScreen (f . cb)
     fmap f (Ring cb) = Ring (f . cb)
 
-newtype DoDsl a = DoDsl (Free DoMethod a)
+newtype DoL a = DoL (Free DoMethod a)
     deriving newtype (Functor, Applicative, Monad)
 
-getCurrentTime :: DoDsl ()
-getCurrentTime = DoDsl $ liftF $ GetCurrentTime (const ())
+getCurrentTime' :: DoL ()
+getCurrentTime' = DoL $ liftF $ GetCurrentTime (const ())
 
-lockScreen :: DoDsl ()
-lockScreen = DoDsl $ liftF $ LockScreen (const ())
+lockScreen :: DoL ()
+lockScreen = DoL $ liftF $ LockScreen (const ())
 
 interpretDoMethod :: DoMethod a -> IO a
 interpretDoMethod (GetCurrentTime cb) = do
     t <- getPOSIXTime
-    let ts = Timestamp (round t)
+    let ts = Timestamp t
     putStrLn ("time: " <> show ts)
     return $ cb ts
 interpretDoMethod (LockScreen cb) = do
@@ -41,9 +59,25 @@ interpretDoMethod (Ring cb) = do
     putStrLn "Ring Ring Ring ..."
     return $ cb ()
 
-runDoDsl :: DoDsl a -> IO a
-runDoDsl (DoDsl dsl) = foldFree interpretDoMethod dsl
+runDoDsl :: DoL a -> IO a
+runDoDsl (DoL dsl) = foldFree interpretDoMethod dsl
 
+---------------------- WhenToDoL
+data WhenToDoF next where
+    WhenToDo :: WhenL tl -> DoL md -> (() -> next) -> WhenToDoF next
+
+instance Functor WhenToDoF where
+    fmap f (WhenToDo whenL doL cb) = WhenToDo whenL doL (f . cb)
+
+newtype WhenToDoL a = WhenToDoL (Free WhenToDoF a)
+    deriving newtype (Functor, Applicative, Monad)
+
+interpretWhenDoF :: WhenToDoF a -> IO a
+interpretWhenDoF (WhenToDo _ _ cb) = do
+    putStrLn "WhenToDo executed (placeholder)"
+    pure (cb ())
+
+--------------------- Log
 data LogLevel = Debug | Info | Warning | Error
     deriving stock (Show)
 
@@ -63,7 +97,7 @@ type LoggerL = Free LoggerF
 
 data LangF next where
     EvalLogger :: LoggerL () -> (() -> next) -> LangF next
-    EvalDoDsl :: DoDsl a -> (a -> next) -> LangF next
+    EvalDoDsl :: DoL a -> (a -> next) -> LangF next
 
 instance Functor LangF where
     fmap f (EvalLogger loggerL cb) = EvalLogger loggerL (f . cb)
@@ -96,5 +130,5 @@ logDebug msg = liftF (EvalLogger logDebug' id)
     logDebug' :: LoggerL ()
     logDebug' = liftF (LogMessage Debug msg id)
 
-evalDoDsl :: DoDsl a -> LangL a
+evalDoDsl :: DoL a -> LangL a
 evalDoDsl doDsl = liftF (EvalDoDsl doDsl id)

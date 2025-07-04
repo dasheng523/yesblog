@@ -82,10 +82,29 @@ library
     Fdd.Simulator.Hardware.Interpreters.Hdl
     Fdd.Simulator.LogicControl.Interpreter
     Fdd.Simulator.Runtime
+    Hd.Du.App
+    Hd.Du.AppRWST
+    Hd.Du.AppTypes
+    Hd.Du.DirTree
+    Hd.Du.DiskUsage
+    Hd.Du.FileCounter
+    Hd.Du.Run
+    Hd.Du.Utils
+    Ptld.Ch01
     Rel8Example
     Server
     SnowflakeExample
+    Ys.Banana
+    Ys.Pitch
     Ys.WhenDoDsl
+    Ys.Yampa.Cube.Graphics
+    Ys.Yampa.Cube.Input
+    Ys.Yampa.Cube.Main
+    Ys.Yampa.Cube.Shapes
+    Ys.Yampa.Cube.Types
+    Ys.Yampa.Elevator
+    Ys.Yampa.Simple
+    Ys.Yampa.TestElevatorMain
 
   other-modules:
     MiniServant
@@ -109,6 +128,8 @@ library
     ViewPatterns
 
   build-depends:
+    StateVar,
+    Yampa,
     aeson,
     async,
     attoparsec,
@@ -117,22 +138,29 @@ library
     blaze-html,
     blaze-markup,
     bytestring,
+    colour,
     containers,
     data-default,
     directory,
+    extra,
     filepath,
     free,
     hasql >=1.8.1.4,
     hasql-pool >=1.2.0.3,
     http-api-data,
     http-media,
+    linear,
     lucid,
     mtl,
     optics-core,
+    optparse-applicative,
+    process,
     profunctors,
     random,
+    reactive-banana,
     rel8,
     relude >=1.0,
+    sdl2,
     servant,
     servant-lucid,
     servant-server,
@@ -142,7 +170,10 @@ library
     string-conversions,
     template-haskell,
     text,
+    text-show,
     time,
+    unix-compat,
+    vector,
     wai,
     warp,
     with-utf8,
