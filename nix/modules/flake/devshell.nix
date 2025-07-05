@@ -15,6 +15,9 @@
         ghciwatch
         postgresql # Add postgresql development libraries
       ];
+      shellHook = ''
+        export TZ=Asia/Shanghai
+      '';
     };
   };
 }

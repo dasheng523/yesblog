@@ -38,7 +38,7 @@ data Object = Object
 instance Default Object where
     def =
         Object
-            { objShape = error "Object shape wasn't define"
+            { objShape = Scene []
             , objPos = (0, 0)
             , objColour = white
             }

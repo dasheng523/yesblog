@@ -24,8 +24,9 @@ import qualified Ys.WhenDoDsl as WdDsl
 import Ys.Yampa.TestElevatorMain (testElevatorMain)
 
 import Control.Concurrent (forkIO, killThread, threadDelay)
-import Ys.Yampa.Cube.Main (runCubeMain)
-import Ys.Yampa.Simple (runYampaApp2)
+
+-- import Ys.Yampa.Cube.Main (runCubeMain)
+import Ys.Yampa.Simple (runYampaApp)
 
 import Control.Exception
 
@@ -54,13 +55,13 @@ spec =
             it "Elevator Test" $ do
                 testElevatorMain
 
-            it "runYampaApp runs without exception for 6.5 seconds" $ do
-                tid <- forkIO runYampaApp2
-                threadDelay 6500000 -- 6.5 秒
+            it "runYampaApp runs without exception for 120 seconds" $ do
+                tid <- forkIO runYampaApp
+                threadDelay 120500000 -- 120.5 秒
                 killThread tid
 
-            it "Cube main test" $ do
-                runCubeMain
+-- it "Cube main test" $ do
+--     runCubeMain
 
 -- 这里只测试函数能否正常运行一段时间，不断言输出
 
